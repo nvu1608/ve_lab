@@ -18,7 +18,7 @@ import argparse
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-ASSIGNMENTS_DIR  = "/home/pi/ve_lab/autograder-assignments"
+ASSIGNMENTS_DIR  = "/home/pi/ve_lab/assignment"
 STLINK_STUDENT   = "37FF71064E573436DB011543"
 DEFAULT_TARGET   = "stm32f103c8"
 

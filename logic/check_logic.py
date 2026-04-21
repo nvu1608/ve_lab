@@ -18,7 +18,7 @@ from datetime import datetime
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-ASSIGNMENTS_DIR = "/home/pi/ve_lab/autograder-assignments"
+ASSIGNMENTS_DIR = "/home/pi/ve_lab/assignment"
 LOGIC_DIR       = "/home/pi/ve_lab/logic"
 CSV_PATH        = "/home/pi/ve_lab/logic/result.csv"
 STLINK_STUDENT  = "37FF71064E573436DB011543"

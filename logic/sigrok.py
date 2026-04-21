@@ -57,7 +57,7 @@ DEFAULT_DECODERS = [
     f"timing:data={CHANNEL_MAP['dht11']}",
 ]
 
-ASSIGNMENTS_DIR = "/home/pi/ve_lab/autograder-assignments"
+ASSIGNMENTS_DIR = "/home/pi/ve_lab/assignment"
 CSV_PATH        = "/home/pi/ve_lab/logic/result.csv"
 SAMPLERATE      = "2M"
 

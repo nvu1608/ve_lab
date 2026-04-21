@@ -24,8 +24,8 @@ import check_reg
 # ─── Config ───────────────────────────────────────────────────────────────────
 
 BASE_DIR        = "/home/pi/ve_lab"
-TEMPLATE_DIR    = f"{BASE_DIR}/stm32_template"
-ASSIGNMENTS_DIR = f"{BASE_DIR}/autograder-assignments"
+TEMPLATE_DIR    = f"{BASE_DIR}/stm32_temp_stu"
+ASSIGNMENTS_DIR = f"{BASE_DIR}/assignment"
 LOGIC_DIR       = f"{BASE_DIR}/logic"
 
 STLINK_STUDENT  = "37FF71064E573436DB011543"
