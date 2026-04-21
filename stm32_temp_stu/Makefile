@@ -76,7 +76,7 @@ startup_stm32f103xb.s
 # binaries
 #######################################
 PREFIX = arm-none-eabi-
-GCC_PATH = /home/pi/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/bin
+GCC_PATH = /home/pi/ve_lab/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/bin
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
 ifdef GCC_PATH
