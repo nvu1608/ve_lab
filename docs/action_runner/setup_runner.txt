@@ -1,0 +1,106 @@
+pi@uynv:~ $ mkdir actions-runner && cd actions-runner
+pi@uynv:~/actions-runner $ curl -o actions-runner-linux-arm64-2.333.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.333.1/actions-runner-linux-arm64-2.333.1.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100  130M  100  130M    0     0  6282k      0  0:00:21  0:00:21 --:--:-- 10.3M
+pi@uynv:~/actions-runner $ echo "69ac7e5692f877189e7dddf4a1bb16cbbd6425568cd69a0359895fac48b9ad3b  actions-runner-linux-arm64-2.333.1.tar.gz" | shasum -a 256 -c
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+        LANGUAGE = (unset),
+        LC_ALL = (unset),
+        LC_CTYPE = (unset),
+        LC_NUMERIC = "vi_VN.UTF-8",
+        LC_COLLATE = (unset),
+        LC_TIME = "vi_VN.UTF-8",
+        LC_MESSAGES = (unset),
+        LC_MONETARY = "vi_VN.UTF-8",
+        LC_ADDRESS = "vi_VN.UTF-8",
+        LC_IDENTIFICATION = "vi_VN.UTF-8",
+        LC_MEASUREMENT = "vi_VN.UTF-8",
+        LC_PAPER = "vi_VN.UTF-8",
+        LC_TELEPHONE = "vi_VN.UTF-8",
+        LC_NAME = "vi_VN.UTF-8",
+        LANG = "en_GB.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to a fallback locale ("en_GB.UTF-8").
+actions-runner-linux-arm64-2.333.1.tar.gz: OK
+pi@uynv:~/actions-runner $ tar xzf ./actions-runner-linux-arm64-2.333.1.tar.gz
+pi@uynv:~/actions-runner $ ./config.sh --url https://github.com/nvu1608/my-autograder --token BXCVGIYGHSO2AAJDECULO53J3HGYO
+
+--------------------------------------------------------------------------------
+|        ____ _ _   _   _       _          _        _   _                      |
+|       / ___(_) |_| | | |_   _| |__      / \   ___| |_(_) ___  _ __  ___      |
+|      | |  _| | __| |_| | | | | '_ \    / _ \ / __| __| |/ _ \| '_ \/ __|     |
+|      | |_| | | |_|  _  | |_| | |_) |  / ___ \ (__| |_| | (_) | | | \__ \     |
+|       \____|_|\__|_| |_|\__,_|_.__/  /_/   \_\___|\__|_|\___/|_| |_|___/     |
+|                                                                              |
+|                       Self-hosted runner registration                        |
+|                                                                              |
+--------------------------------------------------------------------------------
+
+# Authentication
+
+
+√ Connected to GitHub
+
+# Runner Registration
+
+Enter the name of the runner group to add this runner to: [press Enter for Default] 
+
+Enter the name of runner: [press Enter for uynv] 
+
+This runner will have the following labels: 'self-hosted', 'Linux', 'ARM64' 
+Enter any additional labels (ex. label-1,label-2): [press Enter to skip] 
+
+√ Runner successfully added
+
+# Runner settings
+
+Enter name of work folder: [press Enter for _work] 
+
+√ Settings Saved.
+
+pi@uynv:~/actions-runner $ ./run.sh
+
+√ Connected to GitHub
+
+Current runner version: '2.333.1'
+2026-04-11 03:32:46Z: Listening for Jobs
+runs-on: self-hosted
+
+
+
+2026-04-11 03:44:35Z: Running job: build-and-flash
+2026-04-11 03:44:52Z: Job build-and-flash completed with result: Succeeded
+^CExiting...
+Runner listener exit with 0 return code, stop the service, no retry needed.
+Exiting runner...
+pi@uynv:~/actions-runner $ 
+pi@uynv:~/actions-runner $ ls
+_diag  _work  actions-runner-linux-arm64-2.333.1.tar.gz  bin  config.sh  env.sh  externals  run-helper.cmd.template  run-helper.sh  run-helper.sh.template  run.sh  safe_sleep.sh  svc.sh
+pi@uynv:~/actions-runner $ cd ~/actions-runner
+sudo ./svc.sh install
+sudo ./svc.sh start
+Creating launch runner in /etc/systemd/system/actions.runner.nvu1608-my-autograder.uynv.service
+Run as user: pi
+Run as uid: 1000
+gid: 1000
+Created symlink '/etc/systemd/system/multi-user.target.wants/actions.runner.nvu1608-my-autograder.uynv.service' → '/etc/systemd/system/actions.runner.nvu1608-my-autograder.uynv.service'.
+
+/etc/systemd/system/actions.runner.nvu1608-my-autograder.uynv.service
+● actions.runner.nvu1608-my-autograder.uynv.service - GitHub Actions Runner (nvu1608-my-autograder.uynv)
+     Loaded: loaded (/etc/systemd/system/actions.runner.nvu1608-my-autograder.uynv.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-04-11 10:52:04 +07; 81ms ago
+ Invocation: d9cd150c16da4e34bf21c9769b78138d
+   Main PID: 3428 (runsvc.sh)
+      Tasks: 7 (limit: 3918)
+        CPU: 52ms
+     CGroup: /system.slice/actions.runner.nvu1608-my-autograder.uynv.service
+             ├─3428 /bin/bash /home/pi/actions-runner/runsvc.sh
+             └─3431 ./externals/node20/bin/node ./bin/RunnerService.js
+
+Apr 11 10:52:04 uynv systemd[1]: Started actions.runner.nvu1608-my-autograder.uynv.service - GitHub Actions Runner (nvu1608-my-autograder.uynv).
+Apr 11 10:52:04 uynv runsvc.sh[3428]: .path=/home/pi/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/bin/remote-cli:/home/pi/.local/bin:/usr/local/sbin:/usr/…
+Hint: Some lines were ellipsized, use -l to show in full.
+pi@uynv:~/actions-runner $ 
