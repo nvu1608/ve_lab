@@ -1,0 +1,125 @@
+{
+  "target": "stm32f103c8",
+
+  "simulator": {
+    "hex": "simulator.hex",
+    "setup": {}
+  },
+
+  "decoders": [
+    "i2c:scl=D0:sda=D1",
+    "uart:baudrate=115200:tx=D2:format=ascii"
+  ],
+
+  "test_cases": [
+    {
+      "id": "TC01",
+      "name": "Dia chi DS1307 (0x68) duoc ACK",
+      "points": 15,
+      "verify": {
+        "source": "i2c",
+        "type": "i2c_addr_ack",
+        "addr": "68"
+      }
+    },
+    {
+      "id": "TC02",
+      "name": "Co write transaction den DS1307 (set time)",
+      "points": 15,
+      "verify": {
+        "source": "i2c",
+        "type": "regex",
+        "pattern": "Write.*68",
+        "min_count": 1
+      }
+    },
+    {
+      "id": "TC03",
+      "name": "Co read transaction tu DS1307 (get time)",
+      "points": 10,
+      "verify": {
+        "source": "i2c",
+        "type": "regex",
+        "pattern": "Read.*68",
+        "min_count": 1
+      }
+    },
+    {
+      "id": "TC04",
+      "name": "UART in ra format thoi gian HH:MM:SS",
+      "points": 20,
+      "verify": {
+        "source": "uart",
+        "type": "regex",
+        "pattern": "\\d{2}:\\d{2}:\\d{2}",
+        "min_count": 1
+      }
+    },
+    {
+      "id": "TC05",
+      "name": "Gio hop le (00-23)",
+      "points": 10,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "pattern": "(\\d{2}):\\d{2}:\\d{2}",
+        "min": 0,
+        "max": 23
+      }
+    },
+    {
+      "id": "TC06",
+      "name": "Phut hop le (00-59)",
+      "points": 10,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "pattern": "\\d{2}:(\\d{2}):\\d{2}",
+        "min": 0,
+        "max": 59
+      }
+    },
+    {
+      "id": "TC07",
+      "name": "Giay hop le (00-59)",
+      "points": 10,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "pattern": "\\d{2}:\\d{2}:(\\d{2})",
+        "min": 0,
+        "max": 59
+      }
+    }
+  ],
+
+  "register_checks": [
+    {
+      "id": "REG01",
+      "name": "I2C1 duoc enable (RCC_APB1ENR bit 21)",
+      "address": "0x40021018",
+      "mask": "0x00200000",
+      "expected": "0x00200000",
+      "points": 5,
+      "comment": "RCC APB1ENR — I2C1EN bit 21"
+    },
+    {
+      "id": "REG02",
+      "name": "GPIOB clock duoc enable (RCC_APB2ENR bit 3)",
+      "address": "0x40021018",
+      "mask": "0x00000008",
+      "expected": "0x00000008",
+      "points": 3,
+      "comment": "RCC APB2ENR — IOPBEN bit 3, PB6=SCL PB7=SDA"
+    },
+    {
+      "id": "REG03",
+      "name": "USART1 duoc enable (RCC_APB2ENR bit 14)",
+      "address": "0x40021018",
+      "mask": "0x00004000",
+      "expected": "0x00004000",
+      "points": 2,
+      "comment": "RCC APB2ENR — USART1EN bit 14"
+    }
+  ]
+}

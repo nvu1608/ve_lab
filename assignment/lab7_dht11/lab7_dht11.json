@@ -1,0 +1,117 @@
+{
+  "target": "stm32f103c8",
+
+  "simulator": {
+    "hex": "simulator.hex",
+    "setup": {
+      "uart_baudrate": 115200,
+      "uart_set": "TEMP:25,HUMI:60"
+    }
+  },
+
+  "decoders": [
+    "timing:channel=D3",
+    "uart:baudrate=115200:tx=D2:format=ascii"
+  ],
+
+  "test_cases": [
+    {
+      "id": "TC01",
+      "name": "Co trigger pulse START (>18ms LOW) gui den DHT11",
+      "points": 20,
+      "verify": {
+        "source": "timing",
+        "type": "regex_value_range",
+        "pattern": "LOW\\s+(\\d+\\.?\\d*)\\s*ms",
+        "min": 18,
+        "max": 30
+      }
+    },
+    {
+      "id": "TC02",
+      "name": "Nhan du 40 bit du lieu tu DHT11",
+      "points": 15,
+      "verify": {
+        "source": "timing",
+        "type": "dht11_checksum",
+        "channel": "D3"
+      }
+    },
+    {
+      "id": "TC03",
+      "name": "UART in ra nhiet do dung format",
+      "points": 15,
+      "verify": {
+        "source": "uart",
+        "type": "regex",
+        "pattern": "[Tt]emp(?:erature)?[:\\s]+\\d+",
+        "min_count": 1
+      }
+    },
+    {
+      "id": "TC04",
+      "name": "UART in ra do am dung format",
+      "points": 15,
+      "verify": {
+        "source": "uart",
+        "type": "regex",
+        "pattern": "[Hh]um(?:idity)?[:\\s]+\\d+",
+        "min_count": 1
+      }
+    },
+    {
+      "id": "TC05",
+      "name": "Gia tri nhiet do khop voi Pi da set (25°C)",
+      "points": 20,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "pattern": "[Tt]emp(?:erature)?[:\\s]+(\\d+)",
+        "min": 25,
+        "max": 25
+      }
+    },
+    {
+      "id": "TC06",
+      "name": "Gia tri do am khop voi Pi da set (60%)",
+      "points": 15,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "pattern": "[Hh]um(?:idity)?[:\\s]+(\\d+)",
+        "min": 60,
+        "max": 60
+      }
+    }
+  ],
+
+  "register_checks": [
+    {
+      "id": "REG01",
+      "name": "GPIOB clock duoc enable (RCC_APB2ENR bit 3)",
+      "address": "0x40021018",
+      "mask": "0x00000008",
+      "expected": "0x00000008",
+      "points": 5,
+      "comment": "RCC APB2ENR — IOPBEN, PB0 = DHT11 data pin"
+    },
+    {
+      "id": "REG02",
+      "name": "USART1 duoc enable (RCC_APB2ENR bit 14)",
+      "address": "0x40021018",
+      "mask": "0x00004000",
+      "expected": "0x00004000",
+      "points": 5,
+      "comment": "RCC APB2ENR — USART1EN bit 14"
+    },
+    {
+      "id": "REG03",
+      "name": "Timer duoc enable de do timing DHT11",
+      "address": "0x40021018",
+      "mask": "0x00000800",
+      "expected": "0x00000800",
+      "points": 5,
+      "comment": "RCC APB2ENR — TIM1EN bit 11, dung de capture pulse width"
+    }
+  ]
+}
