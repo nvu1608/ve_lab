@@ -189,11 +189,17 @@ def load_lab_decoders(lab_name):
 
     decoder_str = ",".join(decoders)
     if "i2c" in decoder_str:
-        decoders.append(f"timing:data={CHANNEL_MAP['i2c_scl']}")
+        d = f"timing:data={CHANNEL_MAP['i2c_scl']}"
+        if d not in decoders:
+            decoders.append(d)
+
     if "spi" in decoder_str:
-        decoders.append(f"timing:data={CHANNEL_MAP['spi_clk']}")
+        d = f"timing:data={CHANNEL_MAP['spi_clk']}"
+        if d not in decoders:
+            decoders.append(d)
+
     dht_decoder = f"timing:data={CHANNEL_MAP['dht11']}"
-    if ("dht11" in decoder_str or "timing" in decoder_str) and dht_decoder not in decoders:
+    if "dht11" in decoder_str and dht_decoder not in decoders:
         decoders.append(dht_decoder)
 
     print(f" [LAB] Load {json_path}")
@@ -242,12 +248,21 @@ def _run_capture_impl(decoders, capture_time=30):
     if "timing" in decoder_str:
         annots.append("timing=time")
 
+    # Parse channel tu decoder list
+    used_channels = set()
+    for d in decoders:
+        for part in d.split(":"):
+            val = part.split("=")[-1]
+            if re.match(r'^D\d+$', val):
+                used_channels.add(val)
+    channels_arg = ",".join(sorted(used_channels, key=lambda x: int(x[1:])))
+
     cmd = [
         "sigrok-cli",
         "-d", "fx2lafw",
         "--config", f"samplerate={SAMPLERATE}",
         "--time", f"{capture_time}s",
-        "--channels", "D0,D1,D2,D3,D4,D5,D6,D7",
+        "--channels", channels_arg,
         *[arg for d in decoders for arg in ("-P", d)],
         "-A", ",".join(annots),
     ]

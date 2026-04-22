@@ -1,4 +1,4 @@
-ARM GAS  /tmp/cc3BsOW6.s 			page 1
+ARM GAS  /tmp/ccmvwBES.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -58,7 +58,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
   29:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c **** /** @defgroup RTC 
   30:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   * @brief RTC driver modules
   31:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   * @{
-ARM GAS  /tmp/cc3BsOW6.s 			page 2
+ARM GAS  /tmp/ccmvwBES.s 			page 2
 
 
   32:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   */
@@ -118,7 +118,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
   86:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   * @param  NewState: new state of the specified RTC interrupts.
   87:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   *   This parameter can be: ENABLE or DISABLE.
   88:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   * @retval None
-ARM GAS  /tmp/cc3BsOW6.s 			page 3
+ARM GAS  /tmp/ccmvwBES.s 			page 3
 
 
   89:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   */
@@ -178,7 +178,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
   66              		.cfi_endproc
   67              	.LFE65:
   69              		.section	.text.RTC_EnterConfigMode,"ax",%progbits
-ARM GAS  /tmp/cc3BsOW6.s 			page 4
+ARM GAS  /tmp/ccmvwBES.s 			page 4
 
 
   70              		.align	1
@@ -238,7 +238,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  123:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c **** {
  109              		.loc 1 123 1 is_stmt 1 view -0
  110              		.cfi_startproc
-ARM GAS  /tmp/cc3BsOW6.s 			page 5
+ARM GAS  /tmp/ccmvwBES.s 			page 5
 
 
  111              		@ args = 0, pretend = 0, frame = 0
@@ -298,7 +298,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  137:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   return (((uint32_t)RTC->CNTH << 16 ) | tmp) ;
  154              		.loc 1 137 3 is_stmt 1 view .LVU28
  155              		.loc 1 137 25 is_stmt 0 view .LVU29
-ARM GAS  /tmp/cc3BsOW6.s 			page 6
+ARM GAS  /tmp/ccmvwBES.s 			page 6
 
 
  156 0006 108B     		ldrh	r0, [r2, #24]
@@ -358,7 +358,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  198 000e A0B2     		uxth	r0, r4
  199 0010 9883     		strh	r0, [r3, #28]	@ movhi
  152:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   RTC_ExitConfigMode();
-ARM GAS  /tmp/cc3BsOW6.s 			page 7
+ARM GAS  /tmp/ccmvwBES.s 			page 7
 
 
  200              		.loc 1 152 3 is_stmt 1 view .LVU38
@@ -418,7 +418,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  241 0008 C4F30342 		ubfx	r2, r4, #16, #4
  242              		.loc 1 167 13 view .LVU47
  243 000c 034B     		ldr	r3, .L21
-ARM GAS  /tmp/cc3BsOW6.s 			page 8
+ARM GAS  /tmp/ccmvwBES.s 			page 8
 
 
  244 000e 1A81     		strh	r2, [r3, #8]	@ movhi
@@ -478,7 +478,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  181:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   /* Set the ALARM MSB word */
  182:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   RTC->ALRH = AlarmValue >> 16;
  287              		.loc 1 182 3 view .LVU56
-ARM GAS  /tmp/cc3BsOW6.s 			page 9
+ARM GAS  /tmp/ccmvwBES.s 			page 9
 
 
  288              		.loc 1 182 13 is_stmt 0 view .LVU57
@@ -538,7 +538,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  330              		.loc 1 196 50 view .LVU67
  331 0004 1B04     		lsls	r3, r3, #16
  332              		.loc 1 196 7 view .LVU68
-ARM GAS  /tmp/cc3BsOW6.s 			page 10
+ARM GAS  /tmp/ccmvwBES.s 			page 10
 
 
  333 0006 03F47023 		and	r3, r3, #983040
@@ -598,7 +598,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  371 0000 024B     		ldr	r3, .L32
  372 0002 9B88     		ldrh	r3, [r3, #4]
  210:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   {
-ARM GAS  /tmp/cc3BsOW6.s 			page 11
+ARM GAS  /tmp/ccmvwBES.s 			page 11
 
 
  373              		.loc 1 210 38 discriminator 1 view .LVU78
@@ -658,7 +658,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  228:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   {
  411              		.loc 1 228 36 discriminator 1 view .LVU86
  228:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   {
-ARM GAS  /tmp/cc3BsOW6.s 			page 12
+ARM GAS  /tmp/ccmvwBES.s 			page 12
 
 
  412              		.loc 1 228 14 is_stmt 0 discriminator 1 view .LVU87
@@ -718,7 +718,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  446 0000 034B     		ldr	r3, .L41
  447 0002 9B88     		ldrh	r3, [r3, #4]
  448              		.loc 1 251 6 view .LVU95
-ARM GAS  /tmp/cc3BsOW6.s 			page 13
+ARM GAS  /tmp/ccmvwBES.s 			page 13
 
 
  449 0004 1842     		tst	r0, r3
@@ -778,7 +778,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  482              		.cfi_startproc
  483              		@ args = 0, pretend = 0, frame = 0
  484              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /tmp/cc3BsOW6.s 			page 14
+ARM GAS  /tmp/ccmvwBES.s 			page 14
 
 
  485              		@ link register save eliminated.
@@ -838,7 +838,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  523              		@ args = 0, pretend = 0, frame = 0
  524              		@ frame_needed = 0, uses_anonymous_args = 0
  525              		@ link register save eliminated.
-ARM GAS  /tmp/cc3BsOW6.s 			page 15
+ARM GAS  /tmp/ccmvwBES.s 			page 15
 
 
  293:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c ****   ITStatus bitstatus = RESET;
@@ -898,7 +898,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  564 001a 7047     		bx	lr
  565              	.L51:
  566              		.align	2
-ARM GAS  /tmp/cc3BsOW6.s 			page 16
+ARM GAS  /tmp/ccmvwBES.s 			page 16
 
 
  567              	.L50:
@@ -958,7 +958,7 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  605              	.L54:
  606 0012 00BF     		.align	2
  607              	.L53:
-ARM GAS  /tmp/cc3BsOW6.s 			page 17
+ARM GAS  /tmp/ccmvwBES.s 			page 17
 
 
  608 0014 00280040 		.word	1073752064
@@ -966,55 +966,55 @@ ARM GAS  /tmp/cc3BsOW6.s 			page 1
  610              	.LFE78:
  612              		.text
  613              	.Letext0:
- 614              		.file 2 "/home/pi/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/include/
- 615              		.file 3 "/home/pi/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/include/
+ 614              		.file 2 "/home/pi/ve_lab/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/i
+ 615              		.file 3 "/home/pi/ve_lab/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/i
  616              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f10x.h"
-ARM GAS  /tmp/cc3BsOW6.s 			page 18
+ARM GAS  /tmp/ccmvwBES.s 			page 18
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 stm32f10x_rtc.c
-     /tmp/cc3BsOW6.s:19     .text.RTC_ITConfig:00000000 $t
-     /tmp/cc3BsOW6.s:25     .text.RTC_ITConfig:00000000 RTC_ITConfig
-     /tmp/cc3BsOW6.s:65     .text.RTC_ITConfig:00000020 $d
-     /tmp/cc3BsOW6.s:70     .text.RTC_EnterConfigMode:00000000 $t
-     /tmp/cc3BsOW6.s:76     .text.RTC_EnterConfigMode:00000000 RTC_EnterConfigMode
-     /tmp/cc3BsOW6.s:96     .text.RTC_EnterConfigMode:00000010 $d
-     /tmp/cc3BsOW6.s:101    .text.RTC_ExitConfigMode:00000000 $t
-     /tmp/cc3BsOW6.s:107    .text.RTC_ExitConfigMode:00000000 RTC_ExitConfigMode
-     /tmp/cc3BsOW6.s:128    .text.RTC_ExitConfigMode:00000010 $d
-     /tmp/cc3BsOW6.s:133    .text.RTC_GetCounter:00000000 $t
-     /tmp/cc3BsOW6.s:139    .text.RTC_GetCounter:00000000 RTC_GetCounter
-     /tmp/cc3BsOW6.s:163    .text.RTC_GetCounter:00000010 $d
-     /tmp/cc3BsOW6.s:168    .text.RTC_SetCounter:00000000 $t
-     /tmp/cc3BsOW6.s:174    .text.RTC_SetCounter:00000000 RTC_SetCounter
-     /tmp/cc3BsOW6.s:210    .text.RTC_SetCounter:00000018 $d
-     /tmp/cc3BsOW6.s:215    .text.RTC_SetPrescaler:00000000 $t
-     /tmp/cc3BsOW6.s:221    .text.RTC_SetPrescaler:00000000 RTC_SetPrescaler
-     /tmp/cc3BsOW6.s:259    .text.RTC_SetPrescaler:0000001c $d
-     /tmp/cc3BsOW6.s:264    .text.RTC_SetAlarm:00000000 $t
-     /tmp/cc3BsOW6.s:270    .text.RTC_SetAlarm:00000000 RTC_SetAlarm
-     /tmp/cc3BsOW6.s:306    .text.RTC_SetAlarm:00000018 $d
-     /tmp/cc3BsOW6.s:311    .text.RTC_GetDivider:00000000 $t
-     /tmp/cc3BsOW6.s:317    .text.RTC_GetDivider:00000000 RTC_GetDivider
-     /tmp/cc3BsOW6.s:349    .text.RTC_GetDivider:00000014 $d
-     /tmp/cc3BsOW6.s:354    .text.RTC_WaitForLastTask:00000000 $t
-     /tmp/cc3BsOW6.s:360    .text.RTC_WaitForLastTask:00000000 RTC_WaitForLastTask
-     /tmp/cc3BsOW6.s:381    .text.RTC_WaitForLastTask:0000000c $d
-     /tmp/cc3BsOW6.s:386    .text.RTC_WaitForSynchro:00000000 $t
-     /tmp/cc3BsOW6.s:392    .text.RTC_WaitForSynchro:00000000 RTC_WaitForSynchro
-     /tmp/cc3BsOW6.s:423    .text.RTC_WaitForSynchro:0000001c $d
-     /tmp/cc3BsOW6.s:428    .text.RTC_GetFlagStatus:00000000 $t
-     /tmp/cc3BsOW6.s:434    .text.RTC_GetFlagStatus:00000000 RTC_GetFlagStatus
-     /tmp/cc3BsOW6.s:467    .text.RTC_GetFlagStatus:00000010 $d
-     /tmp/cc3BsOW6.s:472    .text.RTC_ClearFlag:00000000 $t
-     /tmp/cc3BsOW6.s:478    .text.RTC_ClearFlag:00000000 RTC_ClearFlag
-     /tmp/cc3BsOW6.s:507    .text.RTC_ClearFlag:00000014 $d
-     /tmp/cc3BsOW6.s:512    .text.RTC_GetITStatus:00000000 $t
-     /tmp/cc3BsOW6.s:518    .text.RTC_GetITStatus:00000000 RTC_GetITStatus
-     /tmp/cc3BsOW6.s:568    .text.RTC_GetITStatus:0000001c $d
-     /tmp/cc3BsOW6.s:573    .text.RTC_ClearITPendingBit:00000000 $t
-     /tmp/cc3BsOW6.s:579    .text.RTC_ClearITPendingBit:00000000 RTC_ClearITPendingBit
-     /tmp/cc3BsOW6.s:608    .text.RTC_ClearITPendingBit:00000014 $d
+     /tmp/ccmvwBES.s:19     .text.RTC_ITConfig:00000000 $t
+     /tmp/ccmvwBES.s:25     .text.RTC_ITConfig:00000000 RTC_ITConfig
+     /tmp/ccmvwBES.s:65     .text.RTC_ITConfig:00000020 $d
+     /tmp/ccmvwBES.s:70     .text.RTC_EnterConfigMode:00000000 $t
+     /tmp/ccmvwBES.s:76     .text.RTC_EnterConfigMode:00000000 RTC_EnterConfigMode
+     /tmp/ccmvwBES.s:96     .text.RTC_EnterConfigMode:00000010 $d
+     /tmp/ccmvwBES.s:101    .text.RTC_ExitConfigMode:00000000 $t
+     /tmp/ccmvwBES.s:107    .text.RTC_ExitConfigMode:00000000 RTC_ExitConfigMode
+     /tmp/ccmvwBES.s:128    .text.RTC_ExitConfigMode:00000010 $d
+     /tmp/ccmvwBES.s:133    .text.RTC_GetCounter:00000000 $t
+     /tmp/ccmvwBES.s:139    .text.RTC_GetCounter:00000000 RTC_GetCounter
+     /tmp/ccmvwBES.s:163    .text.RTC_GetCounter:00000010 $d
+     /tmp/ccmvwBES.s:168    .text.RTC_SetCounter:00000000 $t
+     /tmp/ccmvwBES.s:174    .text.RTC_SetCounter:00000000 RTC_SetCounter
+     /tmp/ccmvwBES.s:210    .text.RTC_SetCounter:00000018 $d
+     /tmp/ccmvwBES.s:215    .text.RTC_SetPrescaler:00000000 $t
+     /tmp/ccmvwBES.s:221    .text.RTC_SetPrescaler:00000000 RTC_SetPrescaler
+     /tmp/ccmvwBES.s:259    .text.RTC_SetPrescaler:0000001c $d
+     /tmp/ccmvwBES.s:264    .text.RTC_SetAlarm:00000000 $t
+     /tmp/ccmvwBES.s:270    .text.RTC_SetAlarm:00000000 RTC_SetAlarm
+     /tmp/ccmvwBES.s:306    .text.RTC_SetAlarm:00000018 $d
+     /tmp/ccmvwBES.s:311    .text.RTC_GetDivider:00000000 $t
+     /tmp/ccmvwBES.s:317    .text.RTC_GetDivider:00000000 RTC_GetDivider
+     /tmp/ccmvwBES.s:349    .text.RTC_GetDivider:00000014 $d
+     /tmp/ccmvwBES.s:354    .text.RTC_WaitForLastTask:00000000 $t
+     /tmp/ccmvwBES.s:360    .text.RTC_WaitForLastTask:00000000 RTC_WaitForLastTask
+     /tmp/ccmvwBES.s:381    .text.RTC_WaitForLastTask:0000000c $d
+     /tmp/ccmvwBES.s:386    .text.RTC_WaitForSynchro:00000000 $t
+     /tmp/ccmvwBES.s:392    .text.RTC_WaitForSynchro:00000000 RTC_WaitForSynchro
+     /tmp/ccmvwBES.s:423    .text.RTC_WaitForSynchro:0000001c $d
+     /tmp/ccmvwBES.s:428    .text.RTC_GetFlagStatus:00000000 $t
+     /tmp/ccmvwBES.s:434    .text.RTC_GetFlagStatus:00000000 RTC_GetFlagStatus
+     /tmp/ccmvwBES.s:467    .text.RTC_GetFlagStatus:00000010 $d
+     /tmp/ccmvwBES.s:472    .text.RTC_ClearFlag:00000000 $t
+     /tmp/ccmvwBES.s:478    .text.RTC_ClearFlag:00000000 RTC_ClearFlag
+     /tmp/ccmvwBES.s:507    .text.RTC_ClearFlag:00000014 $d
+     /tmp/ccmvwBES.s:512    .text.RTC_GetITStatus:00000000 $t
+     /tmp/ccmvwBES.s:518    .text.RTC_GetITStatus:00000000 RTC_GetITStatus
+     /tmp/ccmvwBES.s:568    .text.RTC_GetITStatus:0000001c $d
+     /tmp/ccmvwBES.s:573    .text.RTC_ClearITPendingBit:00000000 $t
+     /tmp/ccmvwBES.s:579    .text.RTC_ClearITPendingBit:00000000 RTC_ClearITPendingBit
+     /tmp/ccmvwBES.s:608    .text.RTC_ClearITPendingBit:00000014 $d
 
 NO UNDEFINED SYMBOLS

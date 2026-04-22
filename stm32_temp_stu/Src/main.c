@@ -69,7 +69,6 @@ int main(void)
     }
 }
 
-
 /* =======================================================
  *  I2C SCAN — quet tu 0x01, gap ACK o dia chi target thi
  *  DUNG LUON, tra ve 1. Neu het 0x7F khong thay tra ve 0.
@@ -197,8 +196,6 @@ void I2C_Config(void)
     I2C_Init(I2C1, &i2c);
     I2C_Cmd(I2C1, ENABLE);
 }
-
-
 
 /* =======================================================
  *  I2C PRIMITIVES

@@ -20,3 +20,11 @@ tar xzf ./actions-runner-linux-arm64-2.333.1.tar.gz
 # Using your self-hosted runner
 # Use this YAML in your workflow file for each job
 runs-on: self-hosted
+
+
+sudo ~/actions-runner/svc.sh status
+
+cd ~/actions-runner
+sudo ./svc.sh install
+sudo ./svc.sh start
+sudo ./svc.sh status

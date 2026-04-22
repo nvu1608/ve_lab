@@ -171,7 +171,7 @@ def main():
 
     # ── Buoc 6: Release reset → cho init code chay ───────────────────────────
     release_reset()
-    time.sleep(0.3)  # du de SystemInit + peripheral init chay xong
+    time.sleep(1.5)  # du de SystemInit + peripheral init chay xong
 
     # ── Buoc 7: Check register (init da chay, pyOCD halt → doc → resume) ─────
     reg_results = []
@@ -194,7 +194,7 @@ def main():
     log(f"Bat dau capture {capture_time}s...")
     sigrok.start_capture(decoders, capture_time=capture_time)  # non-blocking
 
-    time.sleep(0.5)  # doi sigrok init xong, san sang sample
+    time.sleep(1.5)  # doi sigrok init xong, san sang sample
 
     # ── Buoc 10: Nha reset → ca 2 STM32 start dong thoi, sigrok bat tu dau ───
     release_reset()

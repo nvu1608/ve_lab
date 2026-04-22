@@ -63,3 +63,51 @@ Current runner version: '2.333.1'
 Runner listener exit with 0 return code, stop the service, no retry needed.
 Exiting runner...
 pi@lab:~/actions-runner $ 
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+# 22_4_2026
+
+pi@lab:~/actions-runner $ cd ~/actions-runner
+sudo ./svc.sh install
+sudo ./svc.sh start
+sudo ./svc.sh status
+Creating launch runner in /etc/systemd/system/actions.runner.nvu1608-my-autograder.lab.service
+Run as user: pi
+Run as uid: 1000
+gid: 1000
+Created symlink '/etc/systemd/system/multi-user.target.wants/actions.runner.nvu1608-my-autograder.lab.service' → '/etc/systemd/system/actions.runner.nvu1608-my-autograder.lab.service'.
+
+/etc/systemd/system/actions.runner.nvu1608-my-autograder.lab.service
+● actions.runner.nvu1608-my-autograder.lab.service - GitHub Actions Runner (nvu1608-my-autograder.lab)
+     Loaded: loaded (/etc/systemd/system/actions.runner.nvu1608-my-autograder.lab.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-04-22 14:52:43 +07; 163ms ago
+ Invocation: 5772ac0648274ac995bdb7d8caac353c
+   Main PID: 4972 (runsvc.sh)
+      Tasks: 2 (limit: 756)
+        CPU: 65ms
+     CGroup: /system.slice/actions.runner.nvu1608-my-autograder.lab.service
+             ├─4972 /bin/bash /home/pi/actions-runner/runsvc.sh
+             └─4978 ./externals/node20/bin/node ./bin/RunnerService.js
+
+Apr 22 14:52:43 lab systemd[1]: Started actions.runner.nvu1608-my-autograder.lab.service - GitHub Actions Runner (nvu1608-my-autograder.lab).
+Apr 22 14:52:43 lab runsvc.sh[4972]: .path=/home/pi/.vscode-server/cli/servers/Stable-41dd792b5e652393e7787322889ed5fdc58bd75b/server/bin/remote-cli:/usr/local/sbin:/usr/local/…e/pi/.local/bin
+Hint: Some lines were ellipsized, use -l to show in full.
+
+/etc/systemd/system/actions.runner.nvu1608-my-autograder.lab.service
+● actions.runner.nvu1608-my-autograder.lab.service - GitHub Actions Runner (nvu1608-my-autograder.lab)
+     Loaded: loaded (/etc/systemd/system/actions.runner.nvu1608-my-autograder.lab.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-04-22 14:52:43 +07; 324ms ago
+ Invocation: 5772ac0648274ac995bdb7d8caac353c
+   Main PID: 4972 (runsvc.sh)
+      Tasks: 2 (limit: 756)
+        CPU: 79ms
+     CGroup: /system.slice/actions.runner.nvu1608-my-autograder.lab.service
+             ├─4972 /bin/bash /home/pi/actions-runner/runsvc.sh
+             └─4978 ./externals/node20/bin/node ./bin/RunnerService.js
+
+Apr 22 14:52:43 lab systemd[1]: Started actions.runner.nvu1608-my-autograder.lab.service - GitHub Actions Runner (nvu1608-my-autograder.lab).
+Apr 22 14:52:43 lab runsvc.sh[4972]: .path=/home/pi/.vscode-server/cli/servers/Stable-41dd792b5e652393e7787322889ed5fdc58bd75b/server/bin/remote-cli:/usr/local/sbin:/usr/local/…e/pi/.local/bin
+Hint: Some lines were ellipsized, use -l to show in full.
+pi@lab:~/actions-runner $ 

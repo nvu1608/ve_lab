@@ -1,4 +1,4 @@
-ARM GAS  /tmp/cctOO46K.s 			page 1
+ARM GAS  /tmp/cc0VA8LV.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -58,7 +58,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
   30:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** /** @defgroup CAN 
   31:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @brief CAN driver modules
   32:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @{
-ARM GAS  /tmp/cctOO46K.s 			page 2
+ARM GAS  /tmp/cc0VA8LV.s 			page 2
 
 
   33:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   */ 
@@ -118,7 +118,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
   87:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** /** @defgroup CAN_Private_Macros
   88:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @{
   89:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   */
-ARM GAS  /tmp/cctOO46K.s 			page 3
+ARM GAS  /tmp/cc0VA8LV.s 			page 3
 
 
   90:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
@@ -178,7 +178,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  144:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @brief  Initializes the CAN peripheral according to the specified
  145:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   *         parameters in the CAN_InitStruct.
  146:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @param  CANx:           where x can be 1 or 2 to to select the CAN 
-ARM GAS  /tmp/cctOO46K.s 			page 4
+ARM GAS  /tmp/cc0VA8LV.s 			page 4
 
 
  147:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   *                         peripheral.
@@ -238,7 +238,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  201:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Set the automatic bus-off management */
  202:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     if (CAN_InitStruct->CAN_ABOM == ENABLE)
  203:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
-ARM GAS  /tmp/cctOO46K.s 			page 5
+ARM GAS  /tmp/cc0VA8LV.s 			page 5
 
 
  204:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       CANx->MCR |= CAN_MCR_ABOM;
@@ -298,7 +298,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  258:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Request leave initialisation */
  259:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     CANx->MCR &= ~(uint32_t)CAN_MCR_INRQ;
  260:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
-ARM GAS  /tmp/cctOO46K.s 			page 6
+ARM GAS  /tmp/cc0VA8LV.s 			page 6
 
 
  261:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****    /* Wait the acknowledge */
@@ -358,7 +358,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  315:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
  316:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* First 16-bit identifier and First 16-bit mask */
  317:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Or First 16-bit identifier and Second 16-bit identifier */
-ARM GAS  /tmp/cctOO46K.s 			page 7
+ARM GAS  /tmp/cc0VA8LV.s 			page 7
 
 
  318:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR1 = 
@@ -418,7 +418,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  372:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   }
  373:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
  374:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   /* Leave the initialisation mode for the filter */
-ARM GAS  /tmp/cctOO46K.s 			page 8
+ARM GAS  /tmp/cc0VA8LV.s 			page 8
 
 
  375:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   CAN1->FMR &= ~FMR_FINIT;
@@ -478,7 +478,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  429:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** {
  430:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   /* Check the parameters */
  431:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   assert_param(IS_CAN_BANKNUMBER(CAN_BankNumber));
-ARM GAS  /tmp/cctOO46K.s 			page 9
+ARM GAS  /tmp/cc0VA8LV.s 			page 9
 
 
  432:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   
@@ -538,7 +538,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  486:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   if (NewState != DISABLE)
  487:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
  488:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Enable the TTCM mode */
-ARM GAS  /tmp/cctOO46K.s 			page 10
+ARM GAS  /tmp/cc0VA8LV.s 			page 10
 
 
  489:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     CANx->MCR |= CAN_MCR_TTCM;
@@ -598,7 +598,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  543:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
  544:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Set up the Id */
  545:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     CANx->sTxMailBox[transmit_mailbox].TIR &= TMIDxR_TXRQ;
-ARM GAS  /tmp/cctOO46K.s 			page 11
+ARM GAS  /tmp/cc0VA8LV.s 			page 11
 
 
  546:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     if (TxMessage->IDE == CAN_Id_Standard)
@@ -658,7 +658,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  600:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       state =   CANx->TSR &  (CAN_TSR_RQCP0 | CAN_TSR_TXOK0 | CAN_TSR_TME0);
  601:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       break;
  602:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     case (CAN_TXMAILBOX_1): 
-ARM GAS  /tmp/cctOO46K.s 			page 12
+ARM GAS  /tmp/cc0VA8LV.s 			page 12
 
 
  603:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       state =   CANx->TSR &  (CAN_TSR_RQCP1 | CAN_TSR_TXOK1 | CAN_TSR_TME1);
@@ -718,7 +718,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  657:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     default:
  658:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       break;
  659:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   }
-ARM GAS  /tmp/cctOO46K.s 			page 13
+ARM GAS  /tmp/cc0VA8LV.s 			page 13
 
 
  660:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** }
@@ -778,7 +778,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  714:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** /**
  715:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @brief  Releases the specified FIFO.
  716:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @param  CANx:       where x can be 1 or 2 to to select the CAN peripheral. 
-ARM GAS  /tmp/cctOO46K.s 			page 14
+ARM GAS  /tmp/cc0VA8LV.s 			page 14
 
 
  717:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @param  FIFONumber: FIFO to release, CAN_FIFO0 or CAN_FIFO1.
@@ -838,7 +838,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  771:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   *         - CAN_ModeStatus_Success   CAN Succeed entering the specific mode 
  772:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
  773:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   */
-ARM GAS  /tmp/cctOO46K.s 			page 15
+ARM GAS  /tmp/cc0VA8LV.s 			page 15
 
 
  774:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** uint8_t CAN_OperatingModeRequest(CAN_TypeDef* CANx, uint8_t CAN_OperatingMode)
@@ -898,7 +898,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  828:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Wait the acknowledge */
  829:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     while (((CANx->MSR & CAN_MODE_MASK) != CAN_MSR_SLAK) && (timeout!=0))
  830:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
-ARM GAS  /tmp/cctOO46K.s 			page 16
+ARM GAS  /tmp/cc0VA8LV.s 			page 16
 
 
  831:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       timeout--;
@@ -958,7 +958,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  885:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   uint8_t wakeupstatus = CAN_WakeUp_Failed;
  886:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   
  887:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   /* Check the parameters */
-ARM GAS  /tmp/cctOO46K.s 			page 17
+ARM GAS  /tmp/cc0VA8LV.s 			page 17
 
 
  888:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   assert_param(IS_CAN_ALL_PERIPH(CANx));
@@ -1018,7 +1018,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  942:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   *         error passive state.  
  943:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @param  CANx: where x can be 1 or 2 to to select the CAN peripheral.  
  944:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @retval CAN Receive Error Counter. 
-ARM GAS  /tmp/cctOO46K.s 			page 18
+ARM GAS  /tmp/cc0VA8LV.s 			page 18
 
 
  945:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   */
@@ -1078,7 +1078,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  999:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @param  NewState: new state of the CAN interrupts.
 1000:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   *                   This parameter can be: ENABLE or DISABLE.
 1001:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   * @retval None.
-ARM GAS  /tmp/cctOO46K.s 			page 19
+ARM GAS  /tmp/cc0VA8LV.s 			page 19
 
 
 1002:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   */
@@ -1138,7 +1138,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
 1056:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     { 
 1057:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       /* CAN_FLAG is set */
 1058:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       bitstatus = SET;
-ARM GAS  /tmp/cctOO46K.s 			page 20
+ARM GAS  /tmp/cc0VA8LV.s 			page 20
 
 
 1059:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
@@ -1198,7 +1198,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
 1113:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       /* CAN_FLAG is set */
 1114:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       bitstatus = SET;
 1115:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
-ARM GAS  /tmp/cctOO46K.s 			page 21
+ARM GAS  /tmp/cc0VA8LV.s 			page 21
 
 
 1116:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     else
@@ -1258,7 +1258,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
 1170:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
 1171:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       /* Transmit Flags */
 1172:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       CANx->TSR = (uint32_t)(flagtmp);
-ARM GAS  /tmp/cctOO46K.s 			page 22
+ARM GAS  /tmp/cc0VA8LV.s 			page 22
 
 
 1173:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
@@ -1318,7 +1318,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
 1227:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 	      break;
 1228:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       case CAN_IT_FOV0:
 1229:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****                /* Check CAN_RF0R_FOVR0 bit */
-ARM GAS  /tmp/cctOO46K.s 			page 23
+ARM GAS  /tmp/cc0VA8LV.s 			page 23
 
 
 1230:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****                itstatus = CheckITStatus(CANx->RF0R, CAN_RF0R_FOVR0);  
@@ -1378,7 +1378,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
 1284:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   /* Return the CAN_IT status */
 1285:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   return  itstatus;
 1286:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** }
-ARM GAS  /tmp/cctOO46K.s 			page 24
+ARM GAS  /tmp/cc0VA8LV.s 			page 24
 
 
 1287:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
@@ -1438,7 +1438,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
 1341:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 	      break;
 1342:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       case CAN_IT_EWG:
 1343:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****               /* Clear CAN_MSR_ERRI (rc_w1) */
-ARM GAS  /tmp/cctOO46K.s 			page 25
+ARM GAS  /tmp/cc0VA8LV.s 			page 25
 
 
 1344:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 	      CANx->MSR = CAN_MSR_ERRI;
@@ -1498,7 +1498,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
   35 0000 0842     		tst	r0, r1
   36 0002 01D0     		beq	.L3
 1390:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
-ARM GAS  /tmp/cctOO46K.s 			page 26
+ARM GAS  /tmp/cc0VA8LV.s 			page 26
 
 
 1391:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* CAN_IT is set */
@@ -1558,7 +1558,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
   78 0006 0AD0     		beq	.L8
  137:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     /* Release CAN2 from reset state */
   79              		.loc 1 137 5 is_stmt 1 view .LVU14
-ARM GAS  /tmp/cctOO46K.s 			page 27
+ARM GAS  /tmp/cc0VA8LV.s 			page 27
 
 
   80 0008 0121     		movs	r1, #1
@@ -1618,7 +1618,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  129              		@ frame_needed = 0, uses_anonymous_args = 0
  130              		@ link register save eliminated.
  156:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   uint32_t wait_ack = 0x00000000;
-ARM GAS  /tmp/cctOO46K.s 			page 28
+ARM GAS  /tmp/cc0VA8LV.s 			page 28
 
 
  131              		.loc 1 156 3 view .LVU22
@@ -1678,7 +1678,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  179:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
  163              		.loc 1 179 16 is_stmt 0 view .LVU45
  164 0012 4268     		ldr	r2, [r0, #4]
-ARM GAS  /tmp/cctOO46K.s 			page 29
+ARM GAS  /tmp/cc0VA8LV.s 			page 29
 
 
  179:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
@@ -1738,7 +1738,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  202:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
  203              		.loc 1 202 8 view .LVU62
  204 003e 012B     		cmp	r3, #1
-ARM GAS  /tmp/cctOO46K.s 			page 30
+ARM GAS  /tmp/cc0VA8LV.s 			page 30
 
 
  205 0040 39D0     		beq	.L34
@@ -1798,7 +1798,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  232:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
  242              		.loc 1 232 8 view .LVU80
  243 0068 012B     		cmp	r3, #1
-ARM GAS  /tmp/cctOO46K.s 			page 31
+ARM GAS  /tmp/cc0VA8LV.s 			page 31
 
 
  244 006a 33D0     		beq	.L37
@@ -1858,7 +1858,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  280              		.loc 1 254 59 view .LVU98
  281 0094 43EA0253 		orr	r3, r3, r2, lsl #20
  256:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
-ARM GAS  /tmp/cctOO46K.s 			page 32
+ARM GAS  /tmp/cc0VA8LV.s 			page 32
 
 
  282              		.loc 1 256 41 view .LVU99
@@ -1918,7 +1918,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  320              	.L35:
  214:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
  321              		.loc 1 214 7 is_stmt 1 view .LVU116
-ARM GAS  /tmp/cctOO46K.s 			page 33
+ARM GAS  /tmp/cc0VA8LV.s 			page 33
 
 
  214:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
@@ -1978,7 +1978,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  361 00ea 4268     		ldr	r2, [r0, #4]
  264:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****    {
  362              		.loc 1 264 56 view .LVU132
-ARM GAS  /tmp/cctOO46K.s 			page 34
+ARM GAS  /tmp/cc0VA8LV.s 			page 34
 
 
  363 00ec 12F0010F 		tst	r2, #1
@@ -2038,7 +2038,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  408              	.LVL27:
  409              	.LFB67:
  293:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   uint32_t filter_number_bit_pos = 0;
-ARM GAS  /tmp/cctOO46K.s 			page 35
+ARM GAS  /tmp/cc0VA8LV.s 			page 35
 
 
  410              		.loc 1 293 1 is_stmt 1 view -0
@@ -2098,7 +2098,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  447 001e 21EA0301 		bic	r1, r1, r3
  448 0022 C2F81C12 		str	r1, [r2, #540]
  311:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
-ARM GAS  /tmp/cctOO46K.s 			page 36
+ARM GAS  /tmp/cc0VA8LV.s 			page 36
 
 
  449              		.loc 1 311 3 is_stmt 1 view .LVU162
@@ -2158,7 +2158,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  486 005e 02EBCE02 		add	r2, r2, lr, lsl #3
  487 0062 5160     		str	r1, [r2, #4]
  488              	.L40:
-ARM GAS  /tmp/cctOO46K.s 			page 37
+ARM GAS  /tmp/cc0VA8LV.s 			page 37
 
 
  329:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
@@ -2218,7 +2218,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  362:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
  526              		.loc 1 362 6 view .LVU197
  527 0092 012A     		cmp	r2, #1
-ARM GAS  /tmp/cctOO46K.s 			page 38
+ARM GAS  /tmp/cc0VA8LV.s 			page 38
 
 
  528 0094 2ED0     		beq	.L49
@@ -2278,7 +2278,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  566              		.loc 1 334 71 view .LVU213
  567 00c6 4831     		adds	r1, r1, #72
  568 00c8 42F831E0 		str	lr, [r2, r1, lsl #3]
-ARM GAS  /tmp/cctOO46K.s 			page 39
+ARM GAS  /tmp/cc0VA8LV.s 			page 39
 
 
  338:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
@@ -2338,7 +2338,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  608 0108 1343     		orrs	r3, r3, r2
  609              	.LVL32:
  371:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   }
-ARM GAS  /tmp/cctOO46K.s 			page 40
+ARM GAS  /tmp/cc0VA8LV.s 			page 40
 
 
  610              		.loc 1 371 16 view .LVU229
@@ -2398,7 +2398,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  653 000c C372     		strb	r3, [r0, #11]
  407:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   
  654              		.loc 1 407 3 is_stmt 1 view .LVU243
-ARM GAS  /tmp/cctOO46K.s 			page 41
+ARM GAS  /tmp/cc0VA8LV.s 			page 41
 
 
  407:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   
@@ -2458,7 +2458,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  434:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   
  697              		.loc 1 434 13 view .LVU258
  698 0006 42F00102 		orr	r2, r2, #1
-ARM GAS  /tmp/cctOO46K.s 			page 42
+ARM GAS  /tmp/cc0VA8LV.s 			page 42
 
 
  699 000a C3F80022 		str	r2, [r3, #512]
@@ -2518,7 +2518,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  743              		.loc 1 454 3 view .LVU270
  455:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   
  744              		.loc 1 455 3 view .LVU271
-ARM GAS  /tmp/cctOO46K.s 			page 43
+ARM GAS  /tmp/cc0VA8LV.s 			page 43
 
 
  457:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
@@ -2578,7 +2578,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  489:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
  787              		.loc 1 489 5 is_stmt 1 view .LVU286
  489:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
-ARM GAS  /tmp/cctOO46K.s 			page 44
+ARM GAS  /tmp/cc0VA8LV.s 			page 44
 
 
  788              		.loc 1 489 9 is_stmt 0 view .LVU287
@@ -2638,7 +2638,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  825              		.loc 1 503 5 is_stmt 1 view .LVU304
  503:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     CANx->sTxMailBox[2].TDTR &= ((uint32_t)~CAN_TDT2R_TGT);
  826              		.loc 1 503 24 is_stmt 0 view .LVU305
-ARM GAS  /tmp/cctOO46K.s 			page 45
+ARM GAS  /tmp/cc0VA8LV.s 			page 45
 
 
  827 0044 D0F89431 		ldr	r3, [r0, #404]
@@ -2698,7 +2698,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  868 0004 12F0806F 		tst	r2, #67108864
  869 0008 09D1     		bne	.L68
  529:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
-ARM GAS  /tmp/cctOO46K.s 			page 46
+ARM GAS  /tmp/cc0VA8LV.s 			page 46
 
 
  870              		.loc 1 529 8 is_stmt 1 view .LVU321
@@ -2758,7 +2758,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  546:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
  911              		.loc 1 546 5 is_stmt 1 view .LVU335
  546:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
-ARM GAS  /tmp/cctOO46K.s 			page 47
+ARM GAS  /tmp/cc0VA8LV.s 			page 47
 
 
  912              		.loc 1 546 18 is_stmt 0 view .LVU336
@@ -2818,7 +2818,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  950              		.loc 1 563 57 view .LVU352
  951 0074 8D7A     		ldrb	r5, [r1, #10]	@ zero_extendqisi2
  563:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 
-ARM GAS  /tmp/cctOO46K.s 			page 48
+ARM GAS  /tmp/cc0VA8LV.s 			page 48
 
 
  952              		.loc 1 563 45 view .LVU353
@@ -2878,7 +2878,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  988              		.loc 1 573 72 view .LVU371
  989 00a6 C97B     		ldrb	r1, [r1, #15]	@ zero_extendqisi2
  990              	.LVL43:
-ARM GAS  /tmp/cctOO46K.s 			page 49
+ARM GAS  /tmp/cc0VA8LV.s 			page 49
 
 
  572:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****                                              ((uint32_t)TxMessage->Data[4]));
@@ -2938,7 +2938,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  557:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
  1032              		.loc 1 557 60 view .LVU385
  1033 00d2 4C7A     		ldrb	r4, [r1, #9]	@ zero_extendqisi2
-ARM GAS  /tmp/cctOO46K.s 			page 50
+ARM GAS  /tmp/cc0VA8LV.s 			page 50
 
 
  556:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****                                                   TxMessage->RTR);
@@ -2998,7 +2998,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  600:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       break;
  1080              		.loc 1 600 7 view .LVU396
  600:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       break;
-ARM GAS  /tmp/cctOO46K.s 			page 51
+ARM GAS  /tmp/cc0VA8LV.s 			page 51
 
 
  1081              		.loc 1 600 21 is_stmt 0 view .LVU397
@@ -3058,7 +3058,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  606:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       break;
  1124              		.loc 1 606 13 view .LVU409
  1125 0040 23F06F43 		bic	r3, r3, #-285212672
-ARM GAS  /tmp/cctOO46K.s 			page 52
+ARM GAS  /tmp/cc0VA8LV.s 			page 52
 
 
  1126 0044 23F47C03 		bic	r3, r3, #16515072
@@ -3118,7 +3118,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1170              	.L83:
  625:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       break;
  1171              		.loc 1 625 63 view .LVU420
-ARM GAS  /tmp/cctOO46K.s 			page 53
+ARM GAS  /tmp/cc0VA8LV.s 			page 53
 
 
  1172 0072 0120     		movs	r0, #1
@@ -3178,7 +3178,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1217              		.global	CAN_CancelTransmit
  1218              		.syntax unified
  1219              		.thumb
-ARM GAS  /tmp/cctOO46K.s 			page 54
+ARM GAS  /tmp/cc0VA8LV.s 			page 54
 
 
  1220              		.thumb_func
@@ -3238,7 +3238,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1260 0020 43F40003 		orr	r3, r3, #8388608
  1261 0024 8360     		str	r3, [r0, #8]
  656:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     default:
-ARM GAS  /tmp/cctOO46K.s 			page 55
+ARM GAS  /tmp/cc0VA8LV.s 			page 55
 
 
  1262              		.loc 1 656 7 is_stmt 1 view .LVU446
@@ -3298,7 +3298,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1305 001a 5B0D     		lsrs	r3, r3, #21
  680:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   }
  1306              		.loc 1 680 22 view .LVU460
-ARM GAS  /tmp/cctOO46K.s 			page 56
+ARM GAS  /tmp/cc0VA8LV.s 			page 56
 
 
  1307 001c 1360     		str	r3, [r2]
@@ -3358,7 +3358,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1343 0058 4FEA1C2C 		lsr	ip, ip, #8
  694:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   RxMessage->Data[2] = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDLR >> 16);
  1344              		.loc 1 694 22 view .LVU479
-ARM GAS  /tmp/cctOO46K.s 			page 57
+ARM GAS  /tmp/cc0VA8LV.s 			page 57
 
 
  1345 005c 82F80CC0 		strb	ip, [r2, #12]
@@ -3418,7 +3418,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1379              		.loc 1 700 3 is_stmt 1 view .LVU499
  700:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   /* Release the FIFO */
  1380              		.loc 1 700 71 is_stmt 0 view .LVU500
-ARM GAS  /tmp/cctOO46K.s 			page 58
+ARM GAS  /tmp/cc0VA8LV.s 			page 58
 
 
  1381 0098 D3F8BC31 		ldr	r3, [r3, #444]
@@ -3478,7 +3478,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1421              		.global	CAN_FIFORelease
  1422              		.syntax unified
  1423              		.thumb
-ARM GAS  /tmp/cctOO46K.s 			page 59
+ARM GAS  /tmp/cc0VA8LV.s 			page 59
 
 
  1424              		.thumb_func
@@ -3538,7 +3538,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1468              		.loc 1 744 1 is_stmt 1 view -0
  1469              		.cfi_startproc
  1470              		@ args = 0, pretend = 0, frame = 0
-ARM GAS  /tmp/cctOO46K.s 			page 60
+ARM GAS  /tmp/cc0VA8LV.s 			page 60
 
 
  1471              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -3598,7 +3598,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1508              	.LVL83:
  755:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   }
  1509              		.loc 1 755 21 view .LVU546
-ARM GAS  /tmp/cctOO46K.s 			page 61
+ARM GAS  /tmp/cc0VA8LV.s 			page 61
 
 
  1510 0018 7047     		bx	lr
@@ -3658,7 +3658,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1551              		.loc 1 791 18 is_stmt 0 view .LVU561
  1552 0014 4368     		ldr	r3, [r0, #4]
  791:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
-ARM GAS  /tmp/cctOO46K.s 			page 62
+ARM GAS  /tmp/cc0VA8LV.s 			page 62
 
 
  1553              		.loc 1 791 24 view .LVU562
@@ -3718,7 +3718,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1591              		.loc 1 844 12 view .LVU578
  1592 003a 0020     		movs	r0, #0
  1593              	.LVL90:
-ARM GAS  /tmp/cctOO46K.s 			page 63
+ARM GAS  /tmp/cc0VA8LV.s 			page 63
 
 
  844:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   }
@@ -3778,7 +3778,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1632 0060 1BD0     		beq	.L121
  816:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
  1633              		.loc 1 816 14 view .LVU595
-ARM GAS  /tmp/cctOO46K.s 			page 64
+ARM GAS  /tmp/cc0VA8LV.s 			page 64
 
 
  1634 0062 0020     		movs	r0, #0
@@ -3838,7 +3838,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1672              		.loc 1 833 5 is_stmt 1 view .LVU611
  833:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
  1673              		.loc 1 833 14 is_stmt 0 view .LVU612
-ARM GAS  /tmp/cctOO46K.s 			page 65
+ARM GAS  /tmp/cc0VA8LV.s 			page 65
 
 
  1674 0088 4368     		ldr	r3, [r0, #4]
@@ -3898,7 +3898,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1719              	.LFB79:
  857:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   uint8_t sleepstatus = CAN_Sleep_Failed;
  1720              		.loc 1 857 1 is_stmt 1 view -0
-ARM GAS  /tmp/cctOO46K.s 			page 66
+ARM GAS  /tmp/cc0VA8LV.s 			page 66
 
 
  1721              		.cfi_startproc
@@ -3958,7 +3958,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1761              		.global	CAN_WakeUp
  1762              		.syntax unified
  1763              		.thumb
-ARM GAS  /tmp/cctOO46K.s 			page 67
+ARM GAS  /tmp/cc0VA8LV.s 			page 67
 
 
  1764              		.thumb_func
@@ -4018,7 +4018,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1803              	.L131:
  898:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
  1804              		.loc 1 898 3 is_stmt 1 view .LVU656
-ARM GAS  /tmp/cctOO46K.s 			page 68
+ARM GAS  /tmp/cc0VA8LV.s 			page 68
 
 
  898:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   {
@@ -4078,7 +4078,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1848              		.loc 1 933 3 is_stmt 1 view .LVU669
  934:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** /**
  1849              		.loc 1 934 1 is_stmt 0 view .LVU670
-ARM GAS  /tmp/cctOO46K.s 			page 69
+ARM GAS  /tmp/cc0VA8LV.s 			page 69
 
 
  1850 0002 00F07000 		and	r0, r0, #112
@@ -4138,7 +4138,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1898              		.cfi_startproc
  1899              		@ args = 0, pretend = 0, frame = 0
  1900              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /tmp/cctOO46K.s 			page 70
+ARM GAS  /tmp/cc0VA8LV.s 			page 70
 
 
  1901              		@ link register save eliminated.
@@ -4198,7 +4198,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1941              		.loc 1 1013 15 view .LVU696
  1942 0004 0B43     		orrs	r3, r3, r1
  1943 0006 4361     		str	r3, [r0, #20]
-ARM GAS  /tmp/cctOO46K.s 			page 71
+ARM GAS  /tmp/cc0VA8LV.s 			page 71
 
 
  1944 0008 7047     		bx	lr
@@ -4258,7 +4258,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  1986 000e 33B3     		cbz	r3, .L147
 1058:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
  1987              		.loc 1 1058 17 view .LVU711
-ARM GAS  /tmp/cctOO46K.s 			page 72
+ARM GAS  /tmp/cc0VA8LV.s 			page 72
 
 
  1988 0010 0120     		movs	r0, #1
@@ -4318,7 +4318,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2026 0038 0120     		movs	r0, #1
  2027              	.LVL133:
 1086:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
-ARM GAS  /tmp/cctOO46K.s 			page 73
+ARM GAS  /tmp/cc0VA8LV.s 			page 73
 
 
  2028              		.loc 1 1086 17 view .LVU728
@@ -4378,7 +4378,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2067 005e 1846     		mov	r0, r3
  2068              	.LVL139:
 1063:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     }
-ARM GAS  /tmp/cctOO46K.s 			page 74
+ARM GAS  /tmp/cc0VA8LV.s 			page 74
 
 
  2069              		.loc 1 1063 17 view .LVU744
@@ -4438,7 +4438,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2115              		@ args = 0, pretend = 0, frame = 0
  2116              		@ frame_needed = 0, uses_anonymous_args = 0
  2117              		@ link register save eliminated.
-ARM GAS  /tmp/cctOO46K.s 			page 75
+ARM GAS  /tmp/cc0VA8LV.s 			page 75
 
 
 1145:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****   /* Check the parameters */
@@ -4498,7 +4498,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2155              	.L156:
 1169:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
  2156              		.loc 1 1169 10 is_stmt 1 view .LVU772
-ARM GAS  /tmp/cctOO46K.s 			page 76
+ARM GAS  /tmp/cc0VA8LV.s 			page 76
 
 
 1169:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
@@ -4558,7 +4558,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2201              		.loc 1 1211 2 view .LVU784
 1211:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****  {
  2202              		.loc 1 1211 10 is_stmt 0 view .LVU785
-ARM GAS  /tmp/cctOO46K.s 			page 77
+ARM GAS  /tmp/cc0VA8LV.s 			page 77
 
 
  2203 0002 4369     		ldr	r3, [r0, #20]
@@ -4618,7 +4618,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2246 003a 2E49     		ldr	r1, .L187
  2247              	.LVL159:
 1218:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 	      break;
-ARM GAS  /tmp/cctOO46K.s 			page 78
+ARM GAS  /tmp/cc0VA8LV.s 			page 78
 
 
  2248              		.loc 1 1218 26 view .LVU797
@@ -4678,7 +4678,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2291              	.LVL169:
  2292              	.L185:
 1214:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****     {
-ARM GAS  /tmp/cctOO46K.s 			page 79
+ARM GAS  /tmp/cc0VA8LV.s 			page 79
 
 
  2293              		.loc 1 1214 5 is_stmt 0 view .LVU809
@@ -4738,7 +4738,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2334 0090 FFF7FEFF 		bl	CheckITStatus
  2335              	.LVL180:
 1223:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       case CAN_IT_FF0:
-ARM GAS  /tmp/cctOO46K.s 			page 80
+ARM GAS  /tmp/cc0VA8LV.s 			page 80
 
 
  2336              		.loc 1 1223 8 is_stmt 1 view .LVU823
@@ -4798,7 +4798,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2376 00ae FFF7FEFF 		bl	CheckITStatus
  2377              	.LVL192:
 1239:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       case CAN_IT_FOV1:
-ARM GAS  /tmp/cctOO46K.s 			page 81
+ARM GAS  /tmp/cc0VA8LV.s 			page 81
 
 
  2378              		.loc 1 1239 8 is_stmt 1 view .LVU838
@@ -4858,7 +4858,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2418 00cc FFF7FEFF 		bl	CheckITStatus
  2419              	.LVL204:
 1255:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       case CAN_IT_EPV:
-ARM GAS  /tmp/cctOO46K.s 			page 82
+ARM GAS  /tmp/cc0VA8LV.s 			page 82
 
 
  2420              		.loc 1 1255 8 is_stmt 1 view .LVU853
@@ -4918,7 +4918,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2460 00ea FFF7FEFF 		bl	CheckITStatus
  2461              	.LVL216:
 1271:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       default :
-ARM GAS  /tmp/cctOO46K.s 			page 83
+ARM GAS  /tmp/cc0VA8LV.s 			page 83
 
 
  2462              		.loc 1 1271 8 is_stmt 1 view .LVU868
@@ -4978,7 +4978,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2510              		.loc 1 1316 8 view .LVU876
 1316:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c **** 	      break;
  2511              		.loc 1 1316 18 is_stmt 0 view .LVU877
-ARM GAS  /tmp/cctOO46K.s 			page 84
+ARM GAS  /tmp/cc0VA8LV.s 			page 84
 
 
  2512 001a 204B     		ldr	r3, .L211
@@ -5038,7 +5038,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2554              		.loc 1 1362 8 is_stmt 1 view .LVU889
 1362:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****               /* Clear CAN_MSR_ERRI (rc_w1) */
  2555              		.loc 1 1362 18 is_stmt 0 view .LVU890
-ARM GAS  /tmp/cctOO46K.s 			page 85
+ARM GAS  /tmp/cc0VA8LV.s 			page 85
 
 
  2556 005a 0023     		movs	r3, #0
@@ -5098,7 +5098,7 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2594 007a 1023     		movs	r3, #16
  2595 007c 0361     		str	r3, [r0, #16]
 1333:Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c ****       case CAN_IT_WKU:
-ARM GAS  /tmp/cctOO46K.s 			page 86
+ARM GAS  /tmp/cc0VA8LV.s 			page 86
 
 
  2596              		.loc 1 1333 8 is_stmt 1 view .LVU907
@@ -5158,80 +5158,80 @@ ARM GAS  /tmp/cctOO46K.s 			page 1
  2635              		.cfi_endproc
  2636              	.LFE88:
  2638              		.text
-ARM GAS  /tmp/cctOO46K.s 			page 87
+ARM GAS  /tmp/cc0VA8LV.s 			page 87
 
 
  2639              	.Letext0:
- 2640              		.file 2 "/home/pi/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/include/
- 2641              		.file 3 "/home/pi/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/include/
+ 2640              		.file 2 "/home/pi/ve_lab/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/i
+ 2641              		.file 3 "/home/pi/ve_lab/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/arm-none-eabi/i
  2642              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f10x.h"
  2643              		.file 5 "Drivers/STM32F10x_StdPeriph_Driver/inc/stm32f10x_can.h"
  2644              		.file 6 "Drivers/STM32F10x_StdPeriph_Driver/inc/stm32f10x_rcc.h"
-ARM GAS  /tmp/cctOO46K.s 			page 88
+ARM GAS  /tmp/cc0VA8LV.s 			page 88
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 stm32f10x_can.c
-     /tmp/cctOO46K.s:19     .text.CheckITStatus:00000000 $t
-     /tmp/cctOO46K.s:24     .text.CheckITStatus:00000000 CheckITStatus
-     /tmp/cctOO46K.s:54     .text.CAN_DeInit:00000000 $t
-     /tmp/cctOO46K.s:60     .text.CAN_DeInit:00000000 CAN_DeInit
-     /tmp/cctOO46K.s:112    .text.CAN_DeInit:00000034 $d
-     /tmp/cctOO46K.s:117    .text.CAN_Init:00000000 $t
-     /tmp/cctOO46K.s:123    .text.CAN_Init:00000000 CAN_Init
-     /tmp/cctOO46K.s:401    .text.CAN_FilterInit:00000000 $t
-     /tmp/cctOO46K.s:407    .text.CAN_FilterInit:00000000 CAN_FilterInit
-     /tmp/cctOO46K.s:616    .text.CAN_FilterInit:00000110 $d
-     /tmp/cctOO46K.s:621    .text.CAN_StructInit:00000000 $t
-     /tmp/cctOO46K.s:627    .text.CAN_StructInit:00000000 CAN_StructInit
-     /tmp/cctOO46K.s:678    .text.CAN_SlaveStartBank:00000000 $t
-     /tmp/cctOO46K.s:684    .text.CAN_SlaveStartBank:00000000 CAN_SlaveStartBank
-     /tmp/cctOO46K.s:724    .text.CAN_SlaveStartBank:00000038 $d
-     /tmp/cctOO46K.s:729    .text.CAN_DBGFreeze:00000000 $t
-     /tmp/cctOO46K.s:735    .text.CAN_DBGFreeze:00000000 CAN_DBGFreeze
-     /tmp/cctOO46K.s:768    .text.CAN_TTComModeCmd:00000000 $t
-     /tmp/cctOO46K.s:774    .text.CAN_TTComModeCmd:00000000 CAN_TTComModeCmd
-     /tmp/cctOO46K.s:843    .text.CAN_Transmit:00000000 $t
-     /tmp/cctOO46K.s:849    .text.CAN_Transmit:00000000 CAN_Transmit
-     /tmp/cctOO46K.s:1057   .text.CAN_TransmitStatus:00000000 $t
-     /tmp/cctOO46K.s:1063   .text.CAN_TransmitStatus:00000000 CAN_TransmitStatus
-     /tmp/cctOO46K.s:1208   .text.CAN_TransmitStatus:00000088 $d
-     /tmp/cctOO46K.s:1216   .text.CAN_CancelTransmit:00000000 $t
-     /tmp/cctOO46K.s:1222   .text.CAN_CancelTransmit:00000000 CAN_CancelTransmit
-     /tmp/cctOO46K.s:1270   .text.CAN_Receive:00000000 $t
-     /tmp/cctOO46K.s:1276   .text.CAN_Receive:00000000 CAN_Receive
-     /tmp/cctOO46K.s:1420   .text.CAN_FIFORelease:00000000 $t
-     /tmp/cctOO46K.s:1426   .text.CAN_FIFORelease:00000000 CAN_FIFORelease
-     /tmp/cctOO46K.s:1459   .text.CAN_MessagePending:00000000 $t
-     /tmp/cctOO46K.s:1465   .text.CAN_MessagePending:00000000 CAN_MessagePending
-     /tmp/cctOO46K.s:1515   .text.CAN_OperatingModeRequest:00000000 $t
-     /tmp/cctOO46K.s:1521   .text.CAN_OperatingModeRequest:00000000 CAN_OperatingModeRequest
-     /tmp/cctOO46K.s:1711   .text.CAN_Sleep:00000000 $t
-     /tmp/cctOO46K.s:1717   .text.CAN_Sleep:00000000 CAN_Sleep
-     /tmp/cctOO46K.s:1760   .text.CAN_WakeUp:00000000 $t
-     /tmp/cctOO46K.s:1766   .text.CAN_WakeUp:00000000 CAN_WakeUp
-     /tmp/cctOO46K.s:1828   .text.CAN_GetLastErrorCode:00000000 $t
-     /tmp/cctOO46K.s:1834   .text.CAN_GetLastErrorCode:00000000 CAN_GetLastErrorCode
-     /tmp/cctOO46K.s:1858   .text.CAN_GetReceiveErrorCounter:00000000 $t
-     /tmp/cctOO46K.s:1864   .text.CAN_GetReceiveErrorCounter:00000000 CAN_GetReceiveErrorCounter
-     /tmp/cctOO46K.s:1888   .text.CAN_GetLSBTransmitErrorCounter:00000000 $t
-     /tmp/cctOO46K.s:1894   .text.CAN_GetLSBTransmitErrorCounter:00000000 CAN_GetLSBTransmitErrorCounter
-     /tmp/cctOO46K.s:1918   .text.CAN_ITConfig:00000000 $t
-     /tmp/cctOO46K.s:1924   .text.CAN_ITConfig:00000000 CAN_ITConfig
-     /tmp/cctOO46K.s:1958   .text.CAN_GetFlagStatus:00000000 $t
-     /tmp/cctOO46K.s:1964   .text.CAN_GetFlagStatus:00000000 CAN_GetFlagStatus
-     /tmp/cctOO46K.s:2104   .text.CAN_ClearFlag:00000000 $t
-     /tmp/cctOO46K.s:2110   .text.CAN_ClearFlag:00000000 CAN_ClearFlag
-     /tmp/cctOO46K.s:2173   .text.CAN_ClearFlag:00000034 $d
-     /tmp/cctOO46K.s:2178   .text.CAN_GetITStatus:00000000 $t
-     /tmp/cctOO46K.s:2184   .text.CAN_GetITStatus:00000000 CAN_GetITStatus
-     /tmp/cctOO46K.s:2476   .text.CAN_GetITStatus:000000f4 $d
-     /tmp/cctOO46K.s:2481   .text.CAN_ClearITPendingBit:00000000 $t
-ARM GAS  /tmp/cctOO46K.s 			page 89
+     /tmp/cc0VA8LV.s:19     .text.CheckITStatus:00000000 $t
+     /tmp/cc0VA8LV.s:24     .text.CheckITStatus:00000000 CheckITStatus
+     /tmp/cc0VA8LV.s:54     .text.CAN_DeInit:00000000 $t
+     /tmp/cc0VA8LV.s:60     .text.CAN_DeInit:00000000 CAN_DeInit
+     /tmp/cc0VA8LV.s:112    .text.CAN_DeInit:00000034 $d
+     /tmp/cc0VA8LV.s:117    .text.CAN_Init:00000000 $t
+     /tmp/cc0VA8LV.s:123    .text.CAN_Init:00000000 CAN_Init
+     /tmp/cc0VA8LV.s:401    .text.CAN_FilterInit:00000000 $t
+     /tmp/cc0VA8LV.s:407    .text.CAN_FilterInit:00000000 CAN_FilterInit
+     /tmp/cc0VA8LV.s:616    .text.CAN_FilterInit:00000110 $d
+     /tmp/cc0VA8LV.s:621    .text.CAN_StructInit:00000000 $t
+     /tmp/cc0VA8LV.s:627    .text.CAN_StructInit:00000000 CAN_StructInit
+     /tmp/cc0VA8LV.s:678    .text.CAN_SlaveStartBank:00000000 $t
+     /tmp/cc0VA8LV.s:684    .text.CAN_SlaveStartBank:00000000 CAN_SlaveStartBank
+     /tmp/cc0VA8LV.s:724    .text.CAN_SlaveStartBank:00000038 $d
+     /tmp/cc0VA8LV.s:729    .text.CAN_DBGFreeze:00000000 $t
+     /tmp/cc0VA8LV.s:735    .text.CAN_DBGFreeze:00000000 CAN_DBGFreeze
+     /tmp/cc0VA8LV.s:768    .text.CAN_TTComModeCmd:00000000 $t
+     /tmp/cc0VA8LV.s:774    .text.CAN_TTComModeCmd:00000000 CAN_TTComModeCmd
+     /tmp/cc0VA8LV.s:843    .text.CAN_Transmit:00000000 $t
+     /tmp/cc0VA8LV.s:849    .text.CAN_Transmit:00000000 CAN_Transmit
+     /tmp/cc0VA8LV.s:1057   .text.CAN_TransmitStatus:00000000 $t
+     /tmp/cc0VA8LV.s:1063   .text.CAN_TransmitStatus:00000000 CAN_TransmitStatus
+     /tmp/cc0VA8LV.s:1208   .text.CAN_TransmitStatus:00000088 $d
+     /tmp/cc0VA8LV.s:1216   .text.CAN_CancelTransmit:00000000 $t
+     /tmp/cc0VA8LV.s:1222   .text.CAN_CancelTransmit:00000000 CAN_CancelTransmit
+     /tmp/cc0VA8LV.s:1270   .text.CAN_Receive:00000000 $t
+     /tmp/cc0VA8LV.s:1276   .text.CAN_Receive:00000000 CAN_Receive
+     /tmp/cc0VA8LV.s:1420   .text.CAN_FIFORelease:00000000 $t
+     /tmp/cc0VA8LV.s:1426   .text.CAN_FIFORelease:00000000 CAN_FIFORelease
+     /tmp/cc0VA8LV.s:1459   .text.CAN_MessagePending:00000000 $t
+     /tmp/cc0VA8LV.s:1465   .text.CAN_MessagePending:00000000 CAN_MessagePending
+     /tmp/cc0VA8LV.s:1515   .text.CAN_OperatingModeRequest:00000000 $t
+     /tmp/cc0VA8LV.s:1521   .text.CAN_OperatingModeRequest:00000000 CAN_OperatingModeRequest
+     /tmp/cc0VA8LV.s:1711   .text.CAN_Sleep:00000000 $t
+     /tmp/cc0VA8LV.s:1717   .text.CAN_Sleep:00000000 CAN_Sleep
+     /tmp/cc0VA8LV.s:1760   .text.CAN_WakeUp:00000000 $t
+     /tmp/cc0VA8LV.s:1766   .text.CAN_WakeUp:00000000 CAN_WakeUp
+     /tmp/cc0VA8LV.s:1828   .text.CAN_GetLastErrorCode:00000000 $t
+     /tmp/cc0VA8LV.s:1834   .text.CAN_GetLastErrorCode:00000000 CAN_GetLastErrorCode
+     /tmp/cc0VA8LV.s:1858   .text.CAN_GetReceiveErrorCounter:00000000 $t
+     /tmp/cc0VA8LV.s:1864   .text.CAN_GetReceiveErrorCounter:00000000 CAN_GetReceiveErrorCounter
+     /tmp/cc0VA8LV.s:1888   .text.CAN_GetLSBTransmitErrorCounter:00000000 $t
+     /tmp/cc0VA8LV.s:1894   .text.CAN_GetLSBTransmitErrorCounter:00000000 CAN_GetLSBTransmitErrorCounter
+     /tmp/cc0VA8LV.s:1918   .text.CAN_ITConfig:00000000 $t
+     /tmp/cc0VA8LV.s:1924   .text.CAN_ITConfig:00000000 CAN_ITConfig
+     /tmp/cc0VA8LV.s:1958   .text.CAN_GetFlagStatus:00000000 $t
+     /tmp/cc0VA8LV.s:1964   .text.CAN_GetFlagStatus:00000000 CAN_GetFlagStatus
+     /tmp/cc0VA8LV.s:2104   .text.CAN_ClearFlag:00000000 $t
+     /tmp/cc0VA8LV.s:2110   .text.CAN_ClearFlag:00000000 CAN_ClearFlag
+     /tmp/cc0VA8LV.s:2173   .text.CAN_ClearFlag:00000034 $d
+     /tmp/cc0VA8LV.s:2178   .text.CAN_GetITStatus:00000000 $t
+     /tmp/cc0VA8LV.s:2184   .text.CAN_GetITStatus:00000000 CAN_GetITStatus
+     /tmp/cc0VA8LV.s:2476   .text.CAN_GetITStatus:000000f4 $d
+     /tmp/cc0VA8LV.s:2481   .text.CAN_ClearITPendingBit:00000000 $t
+ARM GAS  /tmp/cc0VA8LV.s 			page 89
 
 
-     /tmp/cctOO46K.s:2487   .text.CAN_ClearITPendingBit:00000000 CAN_ClearITPendingBit
-     /tmp/cctOO46K.s:2634   .text.CAN_ClearITPendingBit:0000009c $d
+     /tmp/cc0VA8LV.s:2487   .text.CAN_ClearITPendingBit:00000000 CAN_ClearITPendingBit
+     /tmp/cc0VA8LV.s:2634   .text.CAN_ClearITPendingBit:0000009c $d
 
 UNDEFINED SYMBOLS
 RCC_APB1PeriphResetCmd
