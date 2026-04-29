@@ -23,6 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
+#include "FreeRTOS.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -105,9 +106,11 @@ void UsageFault_Handler(void)
   * @param  None
   * @retval None
   */
+#ifndef vPortSVCHandler
 void SVC_Handler(void)
 {
 }
+#endif
 
 /**
   * @brief  This function handles Debug Monitor exception.
@@ -123,18 +126,22 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
+#ifndef xPortPendSVHandler
 void PendSV_Handler(void)
 {
 }
+#endif
 
 /**
   * @brief  This function handles SysTick Handler.
   * @param  None
   * @retval None
   */
-//void SysTick_Handler(void)
-//{
-//}
+#ifndef xPortSysTickHandler
+void SysTick_Handler(void)
+{
+}
+#endif
 
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
