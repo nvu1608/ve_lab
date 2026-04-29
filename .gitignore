@@ -1,0 +1,46 @@
+# Build directories
+build/
+bin/
+obj/
+*.o
+*.d
+*.lst
+*.map
+
+# Output binaries
+*.elf
+*.hex
+*.bin
+
+# Toolchain (ARM GCC)
+arm_gcc/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.uvoptx
+*.uvprojx
+*.uvguix.*
+*.bak
+*.dep
+*.scvd
+JLinkLog.txt
+.history/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AI & Agent files
+.gemini/
+antigravity/
+implementation_plan*.md
+walkthrough*.md
+task.md
+research_notes.md
+analysis_results.md
+
+# Log files
+*.log

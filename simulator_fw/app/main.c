@@ -8,6 +8,10 @@
 #include "ds1307.h"
 #endif
 
+#if (ENABLE_DHT11 == 1)
+#include "dht11.h"
+#endif
+
 /* ============================================================
  * ENTRY POINT
  * ============================================================ */
@@ -26,7 +30,7 @@ int main(void)
 #endif
 
 #if (ENABLE_DHT11 == 1)
-    // dht11_sim_init(); // Se implement sau
+    dht11_sim_init();
 #endif
 
     /* 3. Chay RTOS Scheduler */
@@ -36,4 +40,28 @@ int main(void)
     while (1)
     {
     }
+}
+
+/* ============================================================
+ * FreeRTOS Hooks
+ * ============================================================ */
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+    (void)xTask;
+    (void)pcTaskName;
+    while (1);
+}
+
+void vApplicationMallocFailedHook(void)
+{
+    while (1);
+}
+
+void vApplicationIdleHook(void)
+{
+}
+
+void vApplicationTickHook(void)
+{
 }

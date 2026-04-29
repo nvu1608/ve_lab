@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.c 
+  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.c
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    08-April-2011
   * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and 
+  *          This file provides template for all exceptions handler and
   *          peripherals interrupt service routine.
   ******************************************************************************
   * @attention
@@ -24,6 +24,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include "FreeRTOS.h"
+#include "driver_timer.h"
+#include "driver_i2c_slave.h"
+
+extern timer_t *g_dht11_tim_tx;
+extern timer_t *g_dht11_tim_rx;
+extern i2c_slave_t g_app_ds1307_i2c;
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -155,13 +161,29 @@ void SysTick_Handler(void)
   * @param  None
   * @retval None
   */
-/*void PPP_IRQHandler(void)
+void TIM1_CC_IRQHandler(void)
 {
-}*/
+    timer_irq_handler(g_dht11_tim_tx);
+}
+
+void TIM2_IRQHandler(void)
+{
+    timer_irq_handler(g_dht11_tim_rx);
+}
+
+void I2C1_EV_IRQHandler(void)
+{
+    i2c_slave_ev_irq_handler(&g_app_ds1307_i2c);
+}
+
+void I2C1_ER_IRQHandler(void)
+{
+    i2c_slave_er_irq_handler(&g_app_ds1307_i2c);
+}
 
 /**
   * @}
-  */ 
+  */
 
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

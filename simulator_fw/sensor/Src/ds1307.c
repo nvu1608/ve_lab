@@ -120,7 +120,7 @@ struct ds1307_simu
     uint8_t regs[DS1307_REG_COUNT];         /* Các thanh ghi time lưu dạng BCD giống DS1307 thật */
 
     /* ============= I2C Simu state =========== */
-    driver_i2c_slave_t *i2c;
+    i2c_slave_t *i2c;
     uint8_t current_reg;           /* Register pointer hiện tại */
     uint8_t tx_reg;                /* Register pointer khi master read */
     uint8_t got_reg_pointer;       /* Cờ báo đã nhận byte register pointer khi write hay chưa */
@@ -156,7 +156,7 @@ struct ds1307_simu
 
 /* Callback nội bộ nhận event từ driver I2C slave */
 static void ds1307_simu_on_i2c_event(void *ctx,
-                                    const driver_i2c_slave_evt_t *evt);
+                                    const i2c_slave_evt_t *evt);
 
 /* Callback nội bộ đẻ driver lấy byte */
 static uint8_t ds1307_simu_get_tx_byte(void *ctx);
@@ -259,7 +259,7 @@ static void ds1307_simu_normalize_time(ds1307_simu_time_t *time)
 /* Decode thanh ghi hour DS1307 sang hour dạng 24h */
 static uint8_t ds1307_simu_decode_hour_to_24h(uint8_t hour_reg)
 {
-    if ((hour_reg & ds1307-DS1307_BIT_12H) != 0u)
+    if ((hour_reg & DS1307_BIT_12H) != 0u)
     {
         uint8_t h12 = ds1307_simu_bcd_to_bin((uint8_t)(hour_reg & DS1307_MASK_HOURS_12));
         uint8_t is_pm = (uint8_t)((hour_reg & DS1307_BIT_PM) ? 1u : 0u);   
@@ -269,10 +269,10 @@ static uint8_t ds1307_simu_decode_hour_to_24h(uint8_t hour_reg)
             return is_pm ? 12u : 0u;
         }
 
-        return is_pm ? (uint8_t)(h12 + 12u) : h12
+        return is_pm ? (uint8_t)(h12 + 12u) : h12;
     }
 
-    return ds1307_simu-ds1307_simu_bcd_to_bin((uint8_t)(hour_reg & DS1307_MASK_HOURS_24));
+    return ds1307_simu_bcd_to_bin((uint8_t)(hour_reg & DS1307_MASK_HOURS_24));
 }
 /* Encode hour 24h về đúng format thanh ghi hour DS1307 */
 static uint8_t ds1307_simu_encode_hour_from_24h(uint8_t hour24,
@@ -330,7 +330,7 @@ static void ds1307_simu_sync_time_from_regs(ds1307_simu_t *sim)
     sim->current_time.hour = 
         ds1307_simu_decode_hour_to_24h(sim->regs[DS1307_REG_HOURS]);
     sim->current_time.day_of_week = 
-        (uint8_t)(sim->regs[DS1307_REG_DAY] 7 DS1307_MASK_DAY);
+        (uint8_t)(sim->regs[DS1307_REG_DAY] & DS1307_MASK_DAY);
     sim->current_time.date = 
         ds1307_simu_bcd_to_bin((uint8_t)(sim->regs[DS1307_REG_DATE] &
                                             DS1307_MASK_DATE));
@@ -344,7 +344,7 @@ static void ds1307_simu_sync_time_from_regs(ds1307_simu_t *sim)
 }
 
 /* Đồng bộ current_time sang register DS1307 */
-static ds1307_simu_sync_regs_from_time(ds1307_simu_t *sim)
+static void ds1307_simu_sync_regs_from_time(ds1307_simu_t *sim)
 {
     uint8_t sec_ch;
 
@@ -463,7 +463,7 @@ static void ds1307_simu_emit_write_done(ds1307_simu_t *sim)
  * ============================================================ */
 
 void ds1307_simu_init(ds1307_simu_t *sim,
-                      driver_i2c_slave_t *i2c)
+                      i2c_slave_t *i2c)
 {
     if (sim == NULL)
     {
@@ -519,13 +519,13 @@ void ds1307_simu_attach(ds1307_simu_t *sim)
     }
 
     /* Đăng ký callback với I2C */
-    driver_i2c_slave_set_event_callback(sim->i2c,
+    i2c_slave_set_event_callback(sim->i2c,
                                         ds1307_simu_on_i2c_event,
                                         sim);
 
-    driver_i2c_driver_i2c_slave_set_tx_byte_callback(sim->i2c,
-                                                    ds1307_simu_get_tx_byte,
-                                                    sim);  
+    i2c_slave_set_tx_byte_callback(sim->i2c,
+                                                     ds1307_simu_get_tx_byte,
+                                                     sim);  
 }
 
 /* ============================================================
@@ -540,10 +540,10 @@ void ds1307_simu_set_time(ds1307_simu_t *sim,
         return;
     }
 
-    sim->current_time = time;
+    sim->current_time = *time;
 
     ds1307_simu_sync_regs_from_time(sim);
-    ds130_ds1307_simu_publish_regs(sim);
+    ds1307_simu_publish_regs(sim);
 }
 
 void ds1307_simu_get_time(const ds1307_simu_t *sim,
@@ -929,7 +929,7 @@ void ds1307_simu_apply_pending_write(ds1307_simu_t *sim)
  */
 
 static void ds1307_simu_on_i2c_event(void *ctx,
-                                     const driver_i2c_slave_evt_t *evt)
+                                     const i2c_slave_evt_t *evt)
 {
     ds1307_simu_t *sim;
 
@@ -942,7 +942,7 @@ static void ds1307_simu_on_i2c_event(void *ctx,
 
     switch (evt->type)
     {
-    case DRIVER_I2C_SLAVE_EVT_WRITE_START:
+    case I2C_SLAVE_EVT_WRITE_START:
         /* Bắt đầu phiên master write */
         if (sim->write_pending != 0u)
         {
@@ -953,7 +953,7 @@ static void ds1307_simu_on_i2c_event(void *ctx,
         sim->tx_active = 0u;
         break;
 
-    case DRIVER_I2C_SLAVE_EVT_BYTE_RECEIVED:
+    case I2C_SLAVE_EVT_BYTE_RECEIVED:
         if (sim->got_reg_pointer == 0u)
         {
             /* Byte đầu tiên là register pointer */
@@ -976,7 +976,7 @@ static void ds1307_simu_on_i2c_event(void *ctx,
         }
         break;
 
-    case DRIVER_I2C_SLAVE_EVT_WRITE_DONE:
+    case I2C_SLAVE_EVT_WRITE_DONE:
         /* STOP sau write: báo app/task apply transaction */
         sim->got_reg_pointer = 0u;
 
@@ -986,24 +986,24 @@ static void ds1307_simu_on_i2c_event(void *ctx,
         }
         break;
 
-    case DRIVER_I2C_SLAVE_EVT_READ_START:
+    case I2C_SLAVE_EVT_READ_START:
         /* Bắt đầu phiên master read */
         sim->tx_bank = sim->active_bank;
         sim->tx_reg = sim->current_reg;
         sim->tx_active = 1u;
         break;
 
-    case DRIVER_I2C_SLAVE_EVT_BYTE_SENT:
+    case I2C_SLAVE_EVT_BYTE_SENT:
         /* Không cần xử lý thêm, tx_reg đã tăng trong get_tx_byte */
         break;
 
-    case DRIVER_I2C_SLAVE_EVT_READ_DONE:
+    case I2C_SLAVE_EVT_READ_DONE:
         /* Kết thúc read, cập nhật lại current_reg */
         sim->current_reg = sim->tx_reg;
         sim->tx_active = 0u;
         break;
 
-    case DRIVER_I2C_SLAVE_EVT_ERROR:
+    case I2C_SLAVE_EVT_ERROR:
     default:
         /* Lỗi I2C: reset state adapter */
         sim->tx_active = 0u;
@@ -1075,7 +1075,7 @@ static uint8_t ds1307_simu_get_tx_byte(void *ctx)
 static gpio_t g_app_ds1307_scl_gpio;
 static gpio_t g_app_ds1307_sda_gpio;
 
-static driver_i2c_slave_t g_app_ds1307_i2c;
+i2c_slave_t g_app_ds1307_i2c;
 static ds1307_simu_t g_app_ds1307_simu;
 
 static SemaphoreHandle_t g_app_ds1307_write_sem;
@@ -1104,7 +1104,7 @@ void ds1307_sim_init(void)
     app_ds1307_hw_init();
 
     /* Init I2C slave driver */
-    driver_i2c_slave_init(&g_app_ds1307_i2c,
+    i2c_slave_init(&g_app_ds1307_i2c,
                           APP_DS1307_I2C_INSTANCE,
                           APP_DS1307_I2C_OWN_ADDRESS,
                           APP_DS1307_I2C_CLOCK_SPEED,
@@ -1144,7 +1144,7 @@ static void ds1307_sim_start_task(void)
                 &g_app_ds1307_task_handle);
 
     /* Start I2C slave sau khi callback/task đã sẵn sàng */
-    driver_i2c_slave_start(&g_app_ds1307_i2c);
+    i2c_slave_start(&g_app_ds1307_i2c);
 }
 
 
@@ -1279,24 +1279,6 @@ static void app_ds1307_task(void *argument)
             }
         }
     }
-}
-
-
-/* ============================================================
- * I2C IRQ HANDLERS
- * ============================================================
- * ISR chỉ gọi driver.
- * Driver sẽ emit event lên ds1307_simu thông qua callback đã attach.
- */
-
-void I2C1_EV_IRQHandler(void)
-{
-    driver_i2c_slave_ev_handler(&g_app_ds1307_i2c);
-}
-
-void I2C1_ER_IRQHandler(void)
-{
-    driver_i2c_slave_er_handler(&g_app_ds1307_i2c);
 }
 
 #endif // ENABLE_DS1307

@@ -22,10 +22,12 @@ Sensor Layer     → sensor/Src/ và sensor/Inc/
                    - Khởi tạo phần cứng (Hardware Binding)
                    Sensor layer sẽ tự do gọi API từ Driver Layer.
 
-Driver Layer     → driver/Src/ và driver/Inc/
-                   Cung cấp API ngoại vi cơ bản (Bare-metal):
-                   - driver_i2c_slave.c, driver_gpio.c...
-                   Không chứa logic của cảm biến, chỉ lo việc truyền nhận I2C/SPI/GPIO.
+Driver Layer     → driver/Src/ driver/Inc/
+                   Cung cấp API ngoại vi cơ bản (Bare-metal) theo chuẩn OOP:
+                   - driver_i2c_slave.c, driver_gpio.c, driver_timer.c...
+                   - Thiết kế hướng đối tượng (truyền con trỏ struct `device_t`).
+                   - Cơ chế Callback kèm Context (`void *ctx`) để đẩy dữ liệu lên Sensor Layer.
+                   Không chứa logic của cảm biến, chỉ lo việc truyền nhận dữ liệu.
 ```
 
 **App layer không chứa logic** — chỉ là file config `app_config.h` với các `#define`:

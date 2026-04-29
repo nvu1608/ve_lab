@@ -1,59 +1,57 @@
 #include "driver_i2c_slave.h"
 #include <string.h>
 
-/* Hàm này sẽ gọi hàm Callback nếu muốn báo sự kiện */
-static void driver_i2c_slave_emit_event(driver_i2c_slave_t *dev,
-                                        driver_i2c_slave_evt_type_t type,
-                                        uint8_t data,
-                                        uint32_t error)
+/* ====================================================================
+ * PRIVATE FUNCTIONS
+ * ==================================================================== */
+
+/**
+ * @brief Phát sự kiện lên tầng trên thông qua callback
+ */
+static void prv_i2c_slave_emit_event(i2c_slave_t *dev,
+                                     i2c_slave_event_t type,
+                                     uint8_t data,
+                                     uint32_t error)
 {
-    if (dev == NULL)
+    if ((dev == NULL) || (dev->event_cb == NULL))
     {
         return;
     }
 
-    driver_i2c_slave_event_cb_t cb = dev->event_cb;
-    void *ctx = dev->event_ctx;
+    i2c_slave_evt_t evt;
+    evt.type = type;
+    evt.data = data;
+    evt.error = error;
 
-    if (cb != NULL)
-    {
-        driver_i2c_slave_evt_t evt;
-
-        evt.type = type;
-        evt.data = data;
-        evt.error = error;
-
-        cb(ctx, &evt);
-    }
+    dev->event_cb(dev->event_ctx, &evt);
 }
 
-/* Hàm này sẽ gọi hàm callback để lấy byte mỗi khi cần byte */
-static uint8_t driver_i2c_slave_get_tx_byte(driver_i2c_slave_t *dev)
+/**
+ * @brief Lấy byte dữ liệu để gửi đi thông qua callback
+ */
+static uint8_t prv_i2c_slave_get_tx_byte(i2c_slave_t *dev)
 {
-    if (dev == NULL)
+    if ((dev == NULL) || (dev->tx_byte_cb == NULL))
     {
         return 0xFFu;
     }
 
-    driver_i2c_slave_tx_byte_cb_t cb = dev->tx_byte_cb;
-    void *ctx = dev->tx_byte_ctx;
-
-    if (cb != NULL)
-    {
-        return cb(ctx);
-    }
-    return 0xFFu;
+    return dev->tx_byte_cb(dev->tx_byte_ctx);
 }
 
-void driver_i2c_slave_init(driver_i2c_slave_t *dev,
-                           I2C_TypeDef *instance,
-                           uint16_t own_address,
-                           uint32_t clock_speed,
-                           uint16_t duty_cycle)
+/* ====================================================================
+ * PUBLIC API
+ * ==================================================================== */
+
+driver_status_t i2c_slave_init(i2c_slave_t *dev,
+                               I2C_TypeDef *instance,
+                               uint16_t own_address,
+                               uint32_t clock_speed,
+                               uint16_t duty_cycle)
 {
     if (dev == NULL)
     {
-        return;
+        return DRIVER_ERR_INVALID_ARG;
     }
 
     memset(dev, 0, sizeof(*dev));
@@ -62,14 +60,16 @@ void driver_i2c_slave_init(driver_i2c_slave_t *dev,
     dev->own_address = own_address;
     dev->clock_speed = clock_speed;
     dev->duty_cycle = duty_cycle;
-    dev->state = DRIVER_I2C_SLAVE_STATE_IDLE;
+    dev->state = I2C_SLAVE_STATE_IDLE;
+
+    return DRIVER_OK;
 }
 
-void driver_i2c_slave_start(driver_i2c_slave_t *dev)
+driver_status_t i2c_slave_start(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
-        return;
+        return DRIVER_ERR_INVALID_ARG;
     }
 
     I2C_InitTypeDef i2c_init;
@@ -84,54 +84,62 @@ void driver_i2c_slave_start(driver_i2c_slave_t *dev)
     I2C_Init(dev->instance, &i2c_init);
     I2C_AcknowledgeConfig(dev->instance, ENABLE);   
 
+    /* Bật interrupt sự kiện, buffer và lỗi */
     I2C_ITConfig(dev->instance, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
 
     I2C_Cmd(dev->instance, ENABLE);
 
-    dev->state = DRIVER_I2C_SLAVE_STATE_IDLE;
+    dev->state = I2C_SLAVE_STATE_IDLE;
+
+    return DRIVER_OK;
 }
 
-void driver_i2c_slave_stop(driver_i2c_slave_t *dev)
+driver_status_t i2c_slave_stop(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
-        return;
+        return DRIVER_ERR_INVALID_ARG;
     }
 
     I2C_ITConfig(dev->instance, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
-
     I2C_Cmd(dev->instance, DISABLE);
 
-    dev->state = DRIVER_I2C_SLAVE_STATE_IDLE;
+    dev->state = I2C_SLAVE_STATE_IDLE;
+
+    return DRIVER_OK;
 }
 
-void driver_i2c_slave_set_event_callback(driver_i2c_slave_t *dev,
-                                         driver_i2c_slave_event_cb_t cb,
-                                         void *ctx)
+driver_status_t i2c_slave_set_event_callback(i2c_slave_t *dev,
+                                             i2c_slave_event_cb_t cb,
+                                             void *ctx)
 {
     if (dev == NULL)
     {
-        return;
+        return DRIVER_ERR_INVALID_ARG;
     }
 
     dev->event_cb = cb;
     dev->event_ctx = ctx;
+
+    return DRIVER_OK;
 }
 
-void driver_i2c_slave_set_tx_byte_callback(driver_i2c_slave_t *dev,
-                                           driver_i2c_slave_tx_byte_cb_t cb,
-                                           void *ctx)
+driver_status_t i2c_slave_set_tx_byte_callback(i2c_slave_t *dev,
+                                               i2c_slave_tx_byte_cb_t cb,
+                                               void *ctx)
 {
     if (dev == NULL)
     {
-        return;
+        return DRIVER_ERR_INVALID_ARG;
     }
 
     dev->tx_byte_cb = cb;
-    dev->tx_byte_ctx = ctx;    
+    dev->tx_byte_ctx = ctx;
+
+    return DRIVER_OK;
 }
 
-void driver_i2c_slave_ev_handler(driver_i2c_slave_t *dev)
+void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
@@ -141,149 +149,125 @@ void driver_i2c_slave_ev_handler(driver_i2c_slave_t *dev)
     I2C_TypeDef *i2c = dev->instance;
     uint16_t sr1 = i2c->SR1;
 
+    /* ADDR: Address matched (Slave) */
     if ((sr1 & I2C_SR1_ADDR) != 0u)
     {
-        uint16_t sr2;
-
-        sr2 = i2c->SR2;
+        uint16_t sr2 = i2c->SR2;
 
         if ((sr2 & I2C_SR2_TRA) != 0u)
         {
+            /* Master muốn READ data từ Slave */
             uint8_t tx_data;
 
-            dev->state = DRIVER_I2C_SLAVE_STATE_TX;
+            dev->state = I2C_SLAVE_STATE_TX;
 
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_READ_START,
-                                        0u,
-                                        0u);
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_READ_START, 0u, 0u);
 
-            tx_data = driver_i2c_slave_get_tx_byte(dev);
+            tx_data = prv_i2c_slave_get_tx_byte(dev);
             i2c->DR = tx_data;
 
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_BYTE_SENT,
-                                        tx_data,
-                                        0u);
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
         }
         else
         {
-            dev->state = DRIVER_I2C_SLAVE_STATE_RX;
+            /* Master muốn WRITE data vào Slave */
+            dev->state = I2C_SLAVE_STATE_RX;
 
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_WRITE_START,
-                                        0u,
-                                        0u);
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_WRITE_START, 0u, 0u);
         }
 
         return;
     }
 
+    /* STOPF: Stop detection (Slave) */
     if ((sr1 & I2C_SR1_STOPF) != 0u)
     {
+        /* Clear STOPF bằng cách đọc SR1 rồi ghi vào CR1 */
+        (void)i2c->SR1;
         i2c->CR1 |= I2C_CR1_PE;
 
-        if (dev->state == DRIVER_I2C_SLAVE_STATE_RX)
+        if (dev->state == I2C_SLAVE_STATE_RX)
         {
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_WRITE_DONE,
-                                        0u,
-                                        0u);
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_WRITE_DONE, 0u, 0u);
         }
 
         dev->state = I2C_SLAVE_STATE_IDLE;
         return;
     }
 
+    /* RXNE: Receive buffer not empty */
     if ((sr1 & I2C_SR1_RXNE) != 0u)
     {
-        uint8_t rx_data;
+        uint8_t rx_data = (uint8_t)i2c->DR;
 
-        rx_data = (uint8_t)i2c->DR;
-
-        if (dev->state != DRIVER_I2C_SLAVE_STATE_RX)
+        if (dev->state != I2C_SLAVE_STATE_RX)
         {
-            dev->state = DRIVER_I2C_SLAVE_STATE_RX;
+            dev->state = I2C_SLAVE_STATE_RX;
         }
 
-        driver_i2c_slave_emit_event(dev,
-                                    DRIVER_I2C_SLAVE_EVT_BYTE_RECEIVED,
-                                    rx_data,
-                                    0u);
+        prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
 
         return;
     }
 
+    /* TXE: Transmit buffer empty */
     if ((sr1 & I2C_SR1_TXE) != 0u)
     {
         uint8_t tx_data;
 
-        if (dev->state != DRIVER_I2C_SLAVE_STATE_TX)
+        if (dev->state != I2C_SLAVE_STATE_TX)
         {
-            dev->state = DRIVER_I2C_SLAVE_STATE_TX;
+            dev->state = I2C_SLAVE_STATE_TX;
         }
 
-        tx_data = driver_i2c_slave_get_tx_byte(dev);
+        tx_data = prv_i2c_slave_get_tx_byte(dev);
         i2c->DR = tx_data;
 
-        driver_i2c_slave_emit_event(dev,
-                                    DRIVER_I2C_SLAVE_EVT_BYTE_SENT,
-                                    tx_data,
-                                    0u);
+        prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
 
         return;
     }
 
+    /* BTF: Byte transfer finished */
     if ((sr1 & I2C_SR1_BTF) != 0u)
     {
-        if (dev->state == DRIVER_I2C_SLAVE_STATE_TX)
+        if (dev->state == I2C_SLAVE_STATE_TX)
         {
-            uint8_t tx_data = driver_i2c_slave_get_tx_byte(dev);
+            uint8_t tx_data = prv_i2c_slave_get_tx_byte(dev);
             i2c->DR = tx_data;
 
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_BYTE_SENT,
-                                        tx_data,
-                                        0u);
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
         }
-        else if (dev->state == DRIVER_I2C_SLAVE_STATE_RX)
+        else if (dev->state == I2C_SLAVE_STATE_RX)
         {
             uint8_t rx_data = (uint8_t)i2c->DR;
             
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_BYTE_RECEIVED,
-                                        rx_data,
-                                        0u);
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
         }
         return;
     }
 }
 
-void driver_i2c_slave_er_handler(driver_i2c_slave_t *dev)
+void i2c_slave_er_irq_handler(i2c_slave_t *dev)
 {
-    I2C_TypeDef *i2c;
-    uint32_t error;
-
     if ((dev == NULL) || (dev->instance == NULL))
     {
         return;
     }
 
-    i2c = dev->instance;
-    error = 0u;
+    I2C_TypeDef *i2c = dev->instance;
+    uint32_t error = 0u;
 
+    /* AF: Acknowledge failure */
     if ((i2c->SR1 & I2C_SR1_AF) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_AF;
 
-        if (dev->state == DRIVER_I2C_SLAVE_STATE_TX)
+        if (dev->state == I2C_SLAVE_STATE_TX)
         {
-            driver_i2c_slave_emit_event(dev,
-                                        DRIVER_I2C_SLAVE_EVT_READ_DONE,
-                                        0u,
-                                        0u);
-
-            dev->state = DRIVER_I2C_SLAVE_STATE_IDLE;
+            /* Master gửi NACK để báo kết thúc phiên READ */
+            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_READ_DONE, 0u, 0u);
+            dev->state = I2C_SLAVE_STATE_IDLE;
         }
         else
         {
@@ -291,18 +275,21 @@ void driver_i2c_slave_er_handler(driver_i2c_slave_t *dev)
         }
     }
 
+    /* BERR: Bus error */
     if ((i2c->SR1 & I2C_SR1_BERR) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_BERR;
         error |= I2C_SR1_BERR;
     }
 
+    /* ARLO: Arbitration lost */
     if ((i2c->SR1 & I2C_SR1_ARLO) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_ARLO;
         error |= I2C_SR1_ARLO;
     }
 
+    /* OVR: Overrun/Underrun */
     if ((i2c->SR1 & I2C_SR1_OVR) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_OVR;
@@ -311,11 +298,7 @@ void driver_i2c_slave_er_handler(driver_i2c_slave_t *dev)
 
     if (error != 0u)
     {
-        dev->state = DRIVER_I2C_SLAVE_STATE_IDLE;
-
-        driver_i2c_slave_emit_event(dev,
-                                    DRIVER_I2C_SLAVE_EVT_ERROR,
-                                    0u,
-                                    error);
+        dev->state = I2C_SLAVE_STATE_IDLE;
+        prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_ERROR, 0u, error);
     }
 }

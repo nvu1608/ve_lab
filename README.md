@@ -1,6 +1,7 @@
 # Embedded Hardware Autograder — Project Context cho AI Assistant
 
 > **LƯU Ý DÀNH CHO AI ASSISTANT**: Đây là file quan trọng nhất bạn cần đọc khi bắt đầu một session mới. Nó chứa ngữ cảnh (context) tổng thể về kiến trúc hệ thống và quy định code của dự án.
+
 > **TÀI LIỆU CHI TIẾT**: Toàn bộ các tài liệu thiết kế chi tiết (như Overview, Architecture, Review) đã được quy hoạch gọn gàng vào thư mục `docs/`. Bạn hãy đọc file [docs/index.md](file:///home/uynv/VELab_Hardware/ve_lab/docs/index.md) để tra cứu các tài liệu liên quan trong dự án.
 
 ## 1. Tổng quan Dự án (Overview)
@@ -22,12 +23,17 @@ Hệ thống sử dụng **2 vi điều khiển STM32F103C8T6**:
 
 ## 3. Quy chuẩn & Lưu ý khi viết code (Coding Guidelines)
 
-1. **Phát triển Simulator Firmware**: 
-   - Khi thêm cảm biến mới (VD: DHT11), tuyệt đối tuân thủ kiến trúc 3 lớp: Tạo file `sensor/Src/dht11.c` chứa toàn bộ RTOS Task và cấu hình ngoại vi. Chỉ thêm đúng `#define ENABLE_DHT11` vào `app_config.h`. 
+1. **Phát triển Simulator Firmware**:
+   - Khi thêm cảm biến mới (VD: DHT11), tuyệt đối tuân thủ kiến trúc 3 lớp: Tạo file `sensor/Src/dht11.c` chứa toàn bộ RTOS Task và cấu hình ngoại vi. Chỉ thêm đúng `#define ENABLE_DHT11` vào `app_config.h`.
    - Tránh việc chia nhỏ logic cảm biến ra nhiều file rải rác.
    - Luôn sử dụng FreeRTOS (Task, Semaphore, Mutex) để xử lý thay vì vòng lặp `while()` hoặc hàm delay block CPU.
-2. **Cập nhật Python Grader (`logic/`)**:
-   - Chú ý luồng chạy đồng bộ (Synchronous logic): Reset chân NRST, check thanh ghi (khi chip dừng), thả NRST, bắt sóng Logic Analyzer (NON-BLOCKING). 
+2. **Quy chuẩn viết Peripheral Driver (Tầng Driver)**:
+   - Các module driver phải được viết theo chuẩn **OOP trong C** (truyền struct `<module>_t *dev`).
+   - Hỗ trợ truyền Event Callback kèm Context (`void *ctx`).
+   - **Tuyệt đối KHÔNG** bật RCC hoặc khởi tạo GPIO cứng bên trong tầng Driver.
+   - Tránh hardcode tham số. Mọi nguyên tắc thiết kế xem tại: [docs/driver_coding_standard.md](file:///home/uynv/VELab_Hardware/ve_lab/docs/driver_coding_standard.md).
+3. **Cập nhật Python Grader (`logic/`)**:
+   - Chú ý luồng chạy đồng bộ (Synchronous logic): Reset chân NRST, check thanh ghi (khi chip dừng), thả NRST, bắt sóng Logic Analyzer (NON-BLOCKING).
    - Không phá vỡ luồng `main_grader.py`. Mọi xử lý tín hiệu mới nên được thêm vào `check_logic.py` (chấm điểm từ file CSV).
 
 ## 4. Các lệnh Terminal thường dùng

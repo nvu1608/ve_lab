@@ -4,6 +4,7 @@
 #include "stm32f10x.h"
 #include <stdint.h>
 #include <stddef.h>
+#include "driver_common.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -28,7 +29,7 @@ typedef void (*gpio_exti_cb_t)(void *ctx);
 
 struct gpio
 {
-    GPIO_TypeDef *port;
+    GPIO_TypeDef *instance;
     uint16_t pin;
     GPIOMode_TypeDef mode;
     GPIOSpeed_TypeDef speed;
@@ -44,29 +45,29 @@ struct gpio
     void *exti_ctx;
 };
 
-void gpio_init(gpio_t *dev,
-               GPIO_TypeDef *port,
-               uint16_t pin,
-               GPIOMode_TypeDef mode,
-               GPIOSpeed_TypeDef speed);
+driver_status_t gpio_init(gpio_t *dev,
+                          GPIO_TypeDef *instance,
+                          uint16_t pin,
+                          GPIOMode_TypeDef mode,
+                          GPIOSpeed_TypeDef speed);
 
-void gpio_set_exti(gpio_t *dev,
-                   EXTITrigger_TypeDef trigger,
-                   uint8_t preempt_priority,
-                   uint8_t sub_priority);
+driver_status_t gpio_set_exti(gpio_t *dev,
+                              EXTITrigger_TypeDef trigger,
+                              uint8_t preempt_priority,
+                              uint8_t sub_priority);
 
-void gpio_start(gpio_t *dev);
-void gpio_stop(gpio_t *dev);
+driver_status_t gpio_start(gpio_t *dev);
+driver_status_t gpio_stop(gpio_t *dev);
 
 uint8_t gpio_read(gpio_t *dev);
-void gpio_write(gpio_t *dev, uint8_t level);
-void gpio_set(gpio_t *dev);
-void gpio_reset(gpio_t *dev);
-void gpio_toggle(gpio_t *dev);
+driver_status_t gpio_write(gpio_t *dev, uint8_t level);
+driver_status_t gpio_set(gpio_t *dev);
+driver_status_t gpio_reset(gpio_t *dev);
+driver_status_t gpio_toggle(gpio_t *dev);
 
-void gpio_set_exti_callback(gpio_t *dev,
-                            gpio_exti_cb_t cb,
-                            void *ctx);
+driver_status_t gpio_set_exti_callback(gpio_t *dev,
+                                       gpio_exti_cb_t cb,
+                                       void *ctx);
 
 void gpio_exti_handler(gpio_t *dev);
 
