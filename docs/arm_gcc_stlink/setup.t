@@ -1,3 +1,4 @@
+mkdir ~/ve_lab/arm_gcc
 cd ~/ve_lab/arm_gcc
 
 sudo apt-get install wget

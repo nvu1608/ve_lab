@@ -97,7 +97,7 @@
     {
       "id": "REG01",
       "name": "I2C1 duoc enable (RCC_APB1ENR bit 21)",
-      "address": "0x40021018",
+      "address": "0x4002101C",
       "mask": "0x00200000",
       "expected": "0x00200000",
       "points": 5,

@@ -5,8 +5,13 @@
  * SENSOR ENABLE CONFIGURATION
  * ============================================================ */
 
-#define ENABLE_DS1307 1
-#define ENABLE_DHT11  1
+#ifndef ENABLE_DS1307
+#define ENABLE_DS1307 0
+#endif
+
+#ifndef ENABLE_DHT11
+#define ENABLE_DHT11  0
+#endif
 
 /* DS1307 Simulator Configuration */
 #define APP_DS1307_I2C_OWN_ADDRESS      0x68

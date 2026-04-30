@@ -1,33 +1,81 @@
 # Tài liệu Mô phỏng Cảm biến DHT11 (DHT11 Simulator)
 
 ## 1. Giới thiệu
-Module `dht11_sim` được thiết kế để mô phỏng một cảm biến DHT11 hoạt động độc lập trên vi điều khiển STM32F103. Quá trình giao tiếp với Host (board sinh viên) sử dụng 1 dây tín hiệu duy nhất theo giao thức chuẩn của DHT11.
+Module `dht11_sim` mô phỏng một cảm biến DHT11 hoạt động trên vi điều khiển STM32F103. Quá trình giao tiếp với Host (board sinh viên) sử dụng giao thức 1-wire chuẩn của DHT11 thông qua một chân tín hiệu duy nhất.
 
-## 2. Phần cứng sử dụng
-- **Chân giao tiếp:** `PA0` (sử dụng Open-Drain, đòi hỏi điện trở kéo lên - pull-up ngoài hoặc internal).
-- **Timer IC (Input Capture):** `TIM2 CH1` được dùng để đo xung đầu vào từ Host (nhận biết Start Signal: kéo Low 18ms).
-- **Timer OC (Output Compare):** `TIM1 CH1` được dùng như "timing engine" chính xác tới từng micro-giây để xuất 40-bit data (bao gồm nhiệt độ, độ ẩm, checksum) sau khi nhận được tín hiệu bắt đầu hợp lệ.
+## 2. Sơ đồ Kiến trúc Hệ thống
 
-## 3. Kiến trúc Phần mềm
-Kiến trúc mô phỏng cảm biến bao gồm:
-1. **Hardware / ISR Level:** Các ngắt Timer (`TIM1_UP`, `TIM1_CC`, `TIM2_IRQHandler`) phục vụ việc thu thập và phát tín hiệu pulse.
-2. **RTOS Level:** Một FreeRTOS Task được tạo ra làm State Machine vòng lặp vô hạn. Khi Host kích hoạt ngắt TIM2, ISR đẩy Binary Semaphore sang cho Task để báo hiệu việc truyền dữ liệu.
-3. **Queue Level:** Thông số cấu hình độ ẩm / nhiệt độ được cập nhật thread-safe thông qua hàm Set Data và ghi đè (overwrite) vào một Queue có độ dài 1.
+Mô hình hoạt động dựa trên kiến trúc 3 lớp (Driver - Sensor - App) đảm bảo tính tách biệt và hiệu suất cao nhờ RTOS.
 
-## 4. Nhật ký Chuyển đổi (Migration Log) so với bản cũ
-Trong quá trình chuyển đổi kiến trúc từ thư mục `dht11_sim/` độc lập vào kiến trúc 3 lớp của `simulator_fw`, các thay đổi lớn sau đã được thực hiện:
+```text
+ ┌──────────────┐  dht11_sim_init()   ┌──────────────────────┐
+ │  APP LAYER   │ ───────────────────►  │   SENSOR LAYER       │
+ │ (main.c)     │  dht11_sim_run()      │   FreeRTOS Task      │
+ │              │ ───────────────────►  │  ┌────────────────┐  │
+ │ app_config.h │  dht11_sim_set_data() │  │ block semaphore│  │
+ │              │ ───────────────────►  │  │ → build data   │  │
+ └──────────────┘                       │  │ → phát 40 bit  │  │
+                                        │  └───────┬────────┘  │
+                                        └──────────┼───────────┘
+                                                   │ register direct
+                                         ┌─────────▼──────────┐
+                                         │  DRIVER LAYER      │
+                                         │ TIM1(OC) TIM2(IC)  │
+                                         │ PA0 (Single-wire)  │
+                                         └────────────────────┘
+```
 
-### 4.1. Cấu trúc thư mục mới
-Toàn bộ mã nguồn cũ được gom gọn về 2 lớp cốt lõi để duy trì tính nhất quán (không tạo file riêng rẽ ở lớp App):
-* `timer_driver.c/h` -> Đổi tên và chuyển về `simulator_fw/driver/Src/driver_timer.c` và `simulator_fw/driver/Inc/driver_timer.h`.
-* `dht11_sim.c/h` -> Cập nhật Header và đổi tên ngắn gọn thành `simulator_fw/sensor/Src/dht11.c` và `simulator_fw/sensor/Inc/dht11.h`.
+## 3. Đặc tả Phần cứng & Giao thức
 
-### 4.2. Khử lớp `dht11_app` không cần thiết
-* **Trước đây:** Có thư mục `App` chứa file `dht11_app.c/h`, trong đó định nghĩa hàm khởi tạo ưu tiên tác vụ (task priority) và gọi cấu hình sensor.
-* **Hiện tại:** Loại bỏ hoàn toàn `dht11_app.c`. Đưa toàn bộ cấu hình vào thẳng một hàm khởi tạo API duy nhất `dht11_sim_init()`. Hàm này được gọi từ lớp app (file `main.c`). Cách tiếp cận này giống hệt cách cấu hình `ds1307`.
+### 3.1. Cấu hình chân tín hiệu (Pinout)
+- **Chân giao tiếp:** `PA0`
+- **Cơ chế Switch Mode:** Chân `PA0` được thay đổi chế độ hoạt động linh hoạt tùy theo trạng thái giao thức:
+    - **IC Mode (Input Capture):** Cấu hình `GPIO_Mode_IPU`. Sử dụng để phát hiện tín hiệu Start (mức LOW kéo dài) từ Host.
+    - **TX Mode (Output Compare):** Cấu hình `GPIO_Mode_Out_OD`. Sử dụng để phản hồi (Response) và gửi dữ liệu 40-bit.
 
-### 4.3. Quản lý trạng thái bằng Macro
-* Module được kích hoạt từ `simulator_fw/app/app_config.h` với flag `#define ENABLE_DHT11 1` và chạy `dht11_sim_init()` ở `main.c` giống như các sensor khác.
+### 3.2. Timing Engine
+Hệ thống sử dụng hai Timer phối hợp để đạt độ chính xác micro-giây (µs):
+- **TIM2 Channel 1 (Input Capture):** Đo độ rộng xung Start signal từ Host (yêu cầu từ 18ms đến 30ms).
+- **TIM1 Channel 1 (Output Compare):** Hoạt động như một "timing engine" để điều khiển việc lật trạng thái chân `PA0` chính xác theo từng bit dữ liệu.
 
-### 4.4. Đổi tên Include
-Trong mã nguồn `dht11.c`, `#include "timer_driver.h"` và `#include "dht11_sim.h"` được cập nhật tương ứng thành `#include "driver_timer.h"` và `#include "dht11.h"`. Tương tự, tên API cũng đổi từ `dht11_sim_config()` thành nội bộ và mở rộng thông qua API chuẩn `dht11_sim_init()`.
+### 3.3. Thông số Timing chuẩn (µs)
+| Giai đoạn | Thời gian (µs) | Mô tả |
+|---|---|---|
+| **Response LOW** | 80 | Simulator kéo LOW báo hiệu sẵn sàng |
+| **Response HIGH** | 80 | Simulator thả HIGH chuẩn bị gửi data |
+| **Bit 0 HIGH** | 26 - 28 | Độ rộng mức HIGH để biểu diễn bit 0 |
+| **Bit 1 HIGH** | 70 | Độ rộng mức HIGH để biểu diễn bit 1 |
+| **Bit LOW** | 50 | Khoảng cách mức LOW giữa các bit |
+
+## 4. Cơ chế Hoạt động (Logic Flow)
+
+1.  **Chờ đợi (Wait):** Task DHT11 bị block tại `Binary Semaphore`. TIM2 (IC) được kích hoạt để canh Start signal.
+2.  **Kích hoạt (Trigger):** Khi Host kéo LOW `PA0` đủ lâu (18ms), IC ISR sẽ `Give` Semaphore để đánh thức Task.
+3.  **Xây dựng Frame:** Task lấy dữ liệu (Nhiệt độ/Độ ẩm) từ `Queue` (nếu có cập nhật mới) và tính toán Checksum.
+4.  **Phát dữ liệu (Transmit):**
+    - Chuyển `PA0` sang Output Compare.
+    - TIM1 OC điều khiển logic lật chân `PA0` để tạo ra chuỗi 40-bit.
+5.  **Hoàn tất:** Sau khi gửi xong bit thứ 40, hệ thống chuyển `PA0` về lại IC Mode và chờ đợi lượt truy vấn tiếp theo.
+
+## 5. Nhật ký Chuyển đổi (Migration Log)
+
+### 5.1. Cấu trúc thư mục mới
+Toàn bộ mã nguồn cũ được chuyển vào kiến trúc 3 lớp:
+*   `driver_timer.c/h`: Driver ngoại vi dùng chung cho toàn hệ thống.
+*   `dht11.c/h`: Logic giả lập cảm biến đặt tại `simulator_fw/sensor/`.
+
+### 5.2. Khởi tạo & Cấu hình
+- **Loại bỏ `dht11_app.c`**: Việc khởi tạo Task và cấu hình phần cứng hiện được gộp vào hàm duy nhất `dht11_sim_init()`.
+- **Kích hoạt module**: Sử dụng flag `#define ENABLE_DHT11 1` trong `app_config.h`.
+
+---
+
+## 6. Các API chính
+
+```c
+/* Khởi tạo simulator, tạo task và chuẩn bị phần cứng */
+void dht11_sim_init(void);
+
+/* Cập nhật dữ liệu mô phỏng (gọi từ App hoặc Script chấm điểm) */
+int dht11_sim_set_data(const DHT11_Data_t *data);
+```

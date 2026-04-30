@@ -20,8 +20,9 @@ import json
 import sigrok
 import check_logic
 import check_reg
+import builder
 
-# ─── Config ───────────────────────────────────────────────────────────────────
+# --- Config ---
 
 BASE_DIR        = "/home/pi/ve_lab"
 TEMPLATE_DIR    = f"{BASE_DIR}/stm32_temp_stu"
@@ -74,39 +75,7 @@ def release_reset():
     gpio_write(GPIO_SIM, 1)
     log("OK: Ca 2 STM32 da duoc nha, dang chay")
 
-# ─── Build ────────────────────────────────────────────────────────────────────
-
-def build(lab_folder, repo_dir):
-    """Copy main.c tu runner workspace → template → make."""
-    # Runner checkout code vao _work/, lay tu bien moi truong GITHUB_WORKSPACE
-    workspace = os.environ.get("GITHUB_WORKSPACE", repo_dir)
-    src = os.path.join(workspace, lab_folder, "main.c")
-
-    if not os.path.exists(src):
-        log(f"LOI: Khong tim thay {src}")
-        return False
-
-    dst = os.path.join(TEMPLATE_DIR, "Src", "main.c")
-    log(f"Copy {src} → {dst}")
-    subprocess.run(["cp", src, dst], check=True)
-
-    log("Building...")
-    result = subprocess.run(
-        ["make", "clean"],
-        cwd=TEMPLATE_DIR
-    )
-    result = subprocess.run(
-        ["make"],
-        cwd=TEMPLATE_DIR
-    )
-    if result.returncode != 0:
-        log(f"LOI: Build FAILED [{lab_folder}]")
-        return False
-
-    log(f"OK: Build thanh cong [{lab_folder}]")
-    return True
-
-# ─── Flash ────────────────────────────────────────────────────────────────────
+# --- Flash ---
 
 def flash(hex_path, serial, label):
     log(f"Flashing {label}...")
@@ -120,9 +89,7 @@ def flash(hex_path, serial, label):
     log(f"OK: Flash thanh cong [{label}]")
     return True
 
-
-
-# ─── Main ─────────────────────────────────────────────────────────────────────
+# --- Main ---
 
 def main():
     parser = argparse.ArgumentParser(description="Autograder Main Grader")
@@ -134,42 +101,49 @@ def main():
     lab_folder   = args.lab
     capture_time = args.time
 
-    log(f"{'='*60}")
+    log("="*60)
     log(f"MAIN GRADER: {lab_folder}")
-    log(f"{'='*60}")
+    log("="*60)
 
-    # ── Resolve JSON path ─────────────────────────────────────────────────────
+    # --- Resolve JSON path ---
     lab_num = re.search(r"lab(\d+)", lab_folder)
     if not lab_num:
         log(f"LOI: Khong xac dinh duoc lab number tu: {lab_folder}")
         sys.exit(1)
     json_path = os.path.join(ASSIGNMENTS_DIR, lab_folder, f"lab{lab_num.group(1)}.json")
 
-    # ── Buoc 1: Setup GPIO ────────────────────────────────────────────────────
+    # --- Step 1: Setup GPIO ---
     gpio_setup()
 
-    # ── Buoc 2: Build ─────────────────────────────────────────────────────────
-    if not build(lab_folder, REPO_DIR):
+    # --- Step 2: Build Student ---
+    if not builder.build_student(lab_folder, REPO_DIR):
         sys.exit(1)
 
-    # ── Buoc 3: Flash Simulator ───────────────────────────────────────────────
-    sim_hex = os.path.join(ASSIGNMENTS_DIR, lab_folder, "simulator.hex")
-    if os.path.exists(sim_hex):
+    # --- Step 3: Build & Flash Simulator ---
+    if builder.build_simulator(lab_folder):
+        sim_hex = "/home/pi/ve_lab/stm32_temp_sim/build/sim.hex"
         if not flash(sim_hex, STLINK_SIM, "SIMULATOR"):
-            log(f"WARN: Flash simulator that bai, bo qua")
+            log("WARN: Flash simulator failed, skipping...")
     else:
-        log(f"WARN: Khong co simulator.hex cho {lab_folder}, bo qua")
+        # Fallback to legacy
+        sim_hex = os.path.join(ASSIGNMENTS_DIR, lab_folder, "simulator.hex")
+        if os.path.exists(sim_hex):
+            log("WARN: Build Simulator failed, using legacy simulator.hex")
+            flash(sim_hex, STLINK_SIM, "SIMULATOR (LEGACY)")
+        else:
+            log("LOI: No simulator firmware found")
+            sys.exit(1)
 
-    # ── Buoc 4: Flash Student ─────────────────────────────────────────────────
-    student_hex = os.path.join(TEMPLATE_DIR, "build", "template_make.hex")
+    # --- Step 4: Flash Student ---
+    student_hex = os.path.join(TEMPLATE_DIR, "build", "stu.hex")
     if not flash(student_hex, STLINK_STUDENT, "STUDENT"):
         sys.exit(1)
 
-    # ── Buoc 5: Load JSON config ──────────────────────────────────────────────
+    # --- Step 5: Load JSON config ---
     with open(json_path, encoding="utf-8") as f:
         cfg = json.load(f)
 
-    # ── Buoc 6: Release reset → cho init code chay ───────────────────────────
+    # --- Step 6: Release reset ---
     release_reset()
     time.sleep(1.5)  # du de SystemInit + peripheral init chay xong
 

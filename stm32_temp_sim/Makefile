@@ -17,7 +17,7 @@
 ######################################
 # target
 ######################################
-TARGET = template_make
+TARGET = sim
 
 
 ######################################
@@ -128,7 +128,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DSTM32F10X_MD \
--DUSE_STDPERIPH_DRIVER
+-DUSE_STDPERIPH_DRIVER \
+$(EXTRA_DEFS)
 
 
 # AS includes
