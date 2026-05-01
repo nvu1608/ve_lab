@@ -168,19 +168,27 @@ def check_device():
 
 def load_lab_decoders(lab_name):
     """
-    Doc file autograder-assignments/<lab_name>/labX.json
-    Tra ve list decoder string, hoac DEFAULT_DECODERS neu khong co file.
+    Tim file .json trong thu muc lab de doc cau hinh decoder.
+    Tra ve list decoder string, hoac DEFAULT_DECODERS neu khong tim thay.
     """
-    lab_num = re.search(r'lab(\d+)', lab_name)
-    if not lab_num:
+    lab_dir = os.path.join(ASSIGNMENTS_DIR, lab_name)
+    if not os.path.exists(lab_dir):
         return DEFAULT_DECODERS
 
-    json_path = os.path.join(ASSIGNMENTS_DIR, lab_name, f"lab{lab_num.group(1)}.json")
+    # 1. Thu tim file trung ten thu muc (vd: lab6_ds1307.json)
+    json_path = os.path.join(lab_dir, f"{lab_name}.json")
+    
+    # 2. Neu khong thay, lay file .json dau tien tim thay
     if not os.path.exists(json_path):
-        print(f" [WARN] Khong tim thay {json_path}, dung DEFAULT_DECODERS")
-        return DEFAULT_DECODERS
+        json_files = [f for f in os.listdir(lab_dir) if f.endswith(".json")]
+        if json_files:
+            json_path = os.path.join(lab_dir, json_files[0])
+        else:
+            print(f" [WARN] Khong tim thay file .json nao trong {lab_dir}, dung DEFAULT_DECODERS")
+            return DEFAULT_DECODERS
 
-    with open(json_path) as f:
+    log(f"Loading decoders tu: {os.path.basename(json_path)}")
+    with open(json_path, encoding="utf-8") as f:
         cfg = json.load(f)
 
     decoders = cfg.get("decoders", [])
