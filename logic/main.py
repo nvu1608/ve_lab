@@ -115,14 +115,20 @@ def run_autograder(args):
     cap_time = args.time
 
     # Kiem tra xem co dang chay che do manual hay khong
-    manual_mode = any([args.build, args.flash, args.capture, args.grade])
+    manual_mode = any([args.build, args.flash, args.reg, args.capture, args.grade])
 
     # 1. Resolve Lab Config
-    lab_num_match = re.search(r"lab(\d+)", lab_name)
-    if not lab_num_match:
-        log(f"LOI: Ten lab khong hop le: {lab_name}")
+    lab_dir = os.path.join(ASSIGNMENTS_DIR, lab_name)
+    if not os.path.exists(lab_dir):
+        log(f"LOI: Thu muc lab khong ton tai: {lab_dir}")
         return
-    json_path = os.path.join(ASSIGNMENTS_DIR, lab_name, f"lab{lab_num_match.group(1)}.json")
+
+    json_files = [f for f in os.listdir(lab_dir) if f.endswith(".json")]
+    if not json_files:
+        log(f"LOI: Khong tim thay file .json trong {lab_dir}")
+        return
+    json_path = os.path.join(lab_dir, json_files[0])
+    log(f"Su dung cau hinh: {os.path.basename(json_path)}")
 
     # 2. Build Phase
     if not manual_mode or args.build:
@@ -141,8 +147,8 @@ def run_autograder(args):
         stu_hex = "/home/pi/ve_lab/stm32_temp_stu/build/stu.hex"
         if not flash_firmware(stu_hex, STLINK_STUDENT, "STUDENT"): return
 
-    # 4. Init & Register Check Phase (Chay khi Full hoac khi Flash)
-    if not manual_mode:
+    # 4. Init & Register Check Phase
+    if not manual_mode or args.reg:
         log("--- PHASE 3: REGISTER CHECK ---")
         with open(json_path, encoding="utf-8") as f:
             cfg = json.load(f)
@@ -184,6 +190,7 @@ if __name__ == "__main__":
     # Manual Testing Flags
     parser.add_argument("--build",   action="store_true", help="Chi thuc hien Build")
     parser.add_argument("--flash",   action="store_true", help="Chi thuc hien Flash")
+    parser.add_argument("--reg",     action="store_true", help="Chi thuc hien Register Check")
     parser.add_argument("--capture", action="store_true", help="Chi thuc hien Capture")
     parser.add_argument("--grade",   action="store_true", help="Chi thuc hien Grade")
 

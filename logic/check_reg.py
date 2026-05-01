@@ -25,88 +25,110 @@ DEFAULT_TARGET   = "stm32f103c8"
 # ─── Core ─────────────────────────────────────────────────────────────────────
 
 def run(register_checks, target=DEFAULT_TARGET, serial=STLINK_STUDENT):
-    """
-    Đọc và kiểm tra từng entry trong register_checks (từ JSON).
-
-    Mỗi entry:
-      { "id", "name", "points", "address", "mask", "expected", "comment" }
-
-    Trả về list dict tương thích format test_cases của checker.py:
-      { "id", "name", "status", "score", "max", "detail" }
-    """
-    try:
-        from pyocd.core.helpers import ConnectHelper
-    except ImportError:
-        print(" [ERROR] check_reg: pyocd chưa được cài (pip install pyocd)")
-        return _all_fail(register_checks, "pyocd not installed")
-
-    if not register_checks:
-        return []
 
     results = []
 
+    # --- STEP 1: System Readiness Check ---
+    # Đảm bảo môi trường Python đã có thư viện giao tiếp pyOCD.
+    try:
+        from pyocd.core.helpers import ConnectHelper
+    except ImportError:
+        msg = "pyocd module not found. Please install via 'pip install pyocd'."
+        print(f" [CRITICAL] {msg}")
+        return _all_fail(register_checks, msg)
+
+    if not register_checks:
+        print(" [INFO] No registers to check.")
+        return []
+
     print(f"\n{'='*60}")
-    print(f" REGISTER CHECK (pyOCD)")
-    print(f" Target : {target}")
-    print(f" Serial : {serial}")
+    print(f" STEP-BY-STEP REGISTER VALIDATION")
+    print(f" Target MCU: {target}")
+    print(f" Debugger  : {serial}")
     print(f"{'='*60}")
 
     try:
+        # --- STEP 2: Establish SWD Connection ---
+        # Khởi tạo phiên làm việc với ST-Link cụ thể thông qua Serial ID.
+        print(f" [1/5] Connecting to ST-Link probe...")
         with ConnectHelper.session_with_chosen_probe(
             unique_id=serial,
             options={"target_override": target}
         ) as session:
             t = session.board.target
+            
+            # --- STEP 3: Enter Debug State ---
+            # Dừng CPU (Halt) là bắt buộc để việc đọc thanh ghi ngoại vi không bị nhiễu 
+            # hoặc gây ra lỗi truy cập (Bus Fault) khi CPU đang xử lý tác vụ khác.
+            print(f" [2/5] Halting CPU for stable register access...")
             t.halt()
 
             try:
+                # --- STEP 4: Execute Register Validations ---
+                # Duyệt qua danh sách các thanh ghi cần kiểm tra từ cấu hình JSON bài Lab.
+                print(f" [3/5] Executing validation rules...")
                 for rc in register_checks:
                     _check_one(t, rc, results)
+            
             finally:
+                # --- STEP 5: Release Hardware (Resume) ---
+                # Luôn luôn phải Resume CPU để chip có thể tiếp tục chạy mã nguồn của sinh viên 
+                # ngay sau khi quá trình kiểm tra kết thúc.
+                print(f" [4/5] Resuming CPU execution and releasing hardware...")
                 t.resume()
-                print(" [OK] resume CPU")  # đổi log → print
 
     except Exception as e:
-        print(f" [ERROR] pyOCD connect/read: {e}")
-        # Các entry chưa được check → thêm FAIL
+        print(f" [CRITICAL] Connection/Communication Failure: {e}")
+        # Đánh dấu FAIL cho tất cả các mục chưa kịp kiểm tra do lỗi phần cứng/kết nối.
         checked_ids = {r["id"] for r in results}
         for rc in register_checks:
             if rc["id"] not in checked_ids:
-                results.append(_fail_entry(rc, f"pyOCD error: {e}"))
+                results.append(_fail_entry(rc, f"Hardware Error: {e}"))
 
-    # Tổng kết
+    # --- STEP 6: Generate Assessment Report ---
+    # Tổng hợp điểm số dựa trên các kết quả so khớp thành công.
     earned = sum(r["score"] for r in results)
     total  = sum(r["max"]   for r in results)
-    print(f"\n REGISTER TOTAL: {earned}/{total}")
+    print(f"\n [5/5] VALIDATION SUMMARY")
+    print(f" TOTAL EARNED: {earned}/{total}")
     print(f"{'='*60}\n")
 
     return results
 
 
 def _check_one(target, rc, results):
-    """Đọc 1 thanh ghi, append kết quả vào results."""
+    """
+    Thực hiện kiểm tra cho một thanh ghi cụ thể (Atomic check).
+    Quy trình: Đọc dữ liệu thô -> Áp dụng Mask -> So sánh với Expected.
+    """
     try:
         addr     = int(rc["address"], 16)
         mask     = int(rc["mask"],    16)
         expected = int(rc["expected"],16)
 
+        # Truy vấn giá trị thực tế từ phần cứng qua SWD
         raw    = target.read32(addr)
+        # Loại bỏ các bit không cần quan tâm thông qua phép toán AND với Mask
         actual = raw & mask
         passed = (actual == expected)
 
         status = "PASS" if passed else "FAIL"
+        
+        # Tạo chuỗi chi tiết để phục vụ việc debug và lưu log
         detail = (
-            f"addr={rc['address']}  "
-            f"raw=0x{raw:08X}  "
-            f"masked=0x{actual:08X}  "
-            f"expected=0x{expected:08X}"
+            f"Addr: {rc['address']} | "
+            f"Raw: 0x{raw:08X} | "
+            f"Masked: 0x{actual:08X} | "
+            f"Expected: 0x{expected:08X}"
         )
 
         score = rc["points"] if passed else 0
-        print(f"\n [{status}] {rc['id']}: {rc['name']}")
+        
+        # In kết quả trực quan ra Terminal
+        print(f" [{status}] {rc['id']}: {rc['name']}")
         print(f"        {detail}")
         if "comment" in rc:
-            print(f"        ({rc['comment']})")
+            print(f"        Note: {rc['comment']}")
 
         results.append({
             "id":     rc["id"],
@@ -118,12 +140,13 @@ def _check_one(target, rc, results):
         })
 
     except Exception as e:
-        err = f"read error: {e}"
-        print(f"\n [ERROR] {rc['id']}: {err}")
-        results.append(_fail_entry(rc, err))
+        err_msg = f"Read failed: {e}"
+        print(f" [ERROR] {rc['id']} ({rc['name']}): {err_msg}")
+        results.append(_fail_entry(rc, err_msg))
 
 
 def _fail_entry(rc, reason):
+    """Tạo nhanh một entry kết quả bị đánh trượt (FAIL)."""
     return {
         "id":     rc["id"],
         "name":   rc["name"],
@@ -135,6 +158,7 @@ def _fail_entry(rc, reason):
 
 
 def _all_fail(register_checks, reason):
+    """Đánh trượt toàn bộ danh sách khi có lỗi hệ thống (ví dụ: mất kết nối)."""
     return [_fail_entry(rc, reason) for rc in register_checks]
 
 
@@ -149,13 +173,16 @@ def main():
     args = parser.parse_args()
 
     # Resolve JSON path
-    lab_num = re.search(r"lab(\d+)", args.lab)
-    json_path = args.json or (
-        os.path.join(ASSIGNMENTS_DIR, args.lab, f"lab{lab_num.group(1)}.json")
-        if lab_num else None
-    )
+    json_path = args.json
+    if not json_path:
+        lab_dir = os.path.join(ASSIGNMENTS_DIR, args.lab)
+        if os.path.exists(lab_dir):
+            json_files = [f for f in os.listdir(lab_dir) if f.endswith(".json")]
+            if json_files:
+                json_path = os.path.join(lab_dir, json_files[0])
+
     if not json_path or not os.path.exists(json_path):
-        print(f"[ERROR] Không tìm thấy JSON: {json_path}")
+        print(f"[ERROR] Không tìm thấy JSON trong thư mục: {args.lab}")
         return
 
     with open(json_path, encoding="utf-8") as f:

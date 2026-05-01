@@ -181,39 +181,50 @@ def run_test_case(tc, rows):
 
 def grade(lab_name, json_path, csv_path=None):
     """
-    Doc result.csv → cham diem theo test cases trong labX.json.
-    csv_path=None → dung CSV_PATH mac dinh.
+    Hàm điều phối chấm điểm logic dựa trên dữ liệu Signal Capture.
+    Quy trình được chia thành 4 giai đoạn khoa học.
     """
-    path = csv_path or CSV_PATH
+    csv_file = csv_path or CSV_PATH
+    results = []
+    earned = 0
 
     print(f"\n{'='*60}")
-    print(f" CHECK LOGIC: {lab_name}")
-    print(f" CSV   : {path}")
-    print(f" JSON  : {json_path}")
+    print(f" STEP-BY-STEP LOGIC ASSESSMENT: {lab_name}")
     print(f"{'='*60}")
 
+    # --- STEP 1: Data Integration ---
+    # Tích hợp dữ liệu từ file cấu hình bài Lab (JSON) và file kết quả thực tế (CSV).
+    print(f" [1/4] Integrating data sources...")
     if not os.path.exists(json_path):
-        print(f" [ERROR] Khong tim thay JSON: {json_path}")
+        print(f" [ERROR] Configuration JSON not found: {json_path}")
         return None
-
-    if not os.path.exists(path):
-        print(f" [ERROR] Khong tim thay CSV: {path}")
+    if not os.path.exists(csv_file):
+        print(f" [ERROR] Capture result CSV not found: {csv_file}")
         return None
-
-    rows = load_csv(path)
 
     with open(json_path, encoding="utf-8") as f:
         cfg = json.load(f)
+    
+    # --- STEP 2: Signal Normalization ---
+    # Làm sạch và chuẩn hóa dữ liệu từ CSV để đảm bảo tính chính xác của bộ máy tìm kiếm.
+    print(f" [2/4] Normalizing captured signals...")
+    try:
+        rows = load_csv(csv_file)
+    except Exception as e:
+        print(f" [ERROR] Failed to parse CSV: {e}")
+        return None
 
-    test_cases   = cfg.get("test_cases", [])
+    test_cases = cfg.get("test_cases", [])
     total_points = sum(tc["points"] for tc in test_cases)
-    earned       = 0
-    results      = []
-
+    
+    # --- STEP 3: Logical Verification Engine ---
+    # Chạy các thuật toán kiểm tra (Regex, I2C Protocol, Checksum...) cho từng Test Case.
+    print(f" [3/4] Executing verification engine ({len(test_cases)} cases)...")
     for tc in test_cases:
         passed, score, detail = run_test_case(tc, rows)
         earned += score
         status = "PASS" if passed else "FAIL"
+        
         results.append({
             "id":     tc["id"],
             "name":   tc["name"],
@@ -222,15 +233,21 @@ def grade(lab_name, json_path, csv_path=None):
             "max":    tc["points"],
             "detail": detail,
         })
+        
+        # Log kết quả trực quan cho từng Case để sinh viên dễ dàng debug
         print(f"\n [{status}] {tc['id']}: {tc['name']}")
-        print(f"        Diem: {score}/{tc['points']}")
-        print(f"        {detail}")
+        print(f"        Score : {score}/{tc['points']}")
+        print(f"        Detail: {detail}")
 
+    # --- STEP 4: Scoring & Final Assessment ---
+    # Tổng hợp điểm số và đưa ra kết luận cuối cùng dựa trên ngưỡng đạt (>= 50%).
     percent = round(earned / total_points * 100) if total_points else 0
     overall = "PASS" if percent >= 50 else "FAIL"
 
-    print(f"\n{'='*60}")
-    print(f" LOGIC DIEM: {earned}/{total_points} ({percent}%) — {overall}")
+    print(f"\n [4/4] GENERATING FINAL ASSESSMENT REPORT")
+    print(f"{'-'*60}")
+    print(f" TOTAL SCORE : {earned}/{total_points} ({percent}%)")
+    print(f" FINAL STATUS: {overall}")
     print(f"{'='*60}\n")
 
     return {
@@ -255,11 +272,14 @@ def main():
 
     lab_name = args.lab
 
-    lab_num   = re.search(r"lab(\d+)", lab_name)
-    json_path = args.json or (
-        os.path.join(ASSIGNMENTS_DIR, lab_name, f"lab{lab_num.group(1)}.json")
-        if lab_num else None
-    )
+    # Tim file JSON cau hinh (Lay file .json duy nhat trong thu muc lab)
+    json_path = args.json
+    if not json_path:
+        lab_dir = os.path.join(ASSIGNMENTS_DIR, lab_name)
+        if os.path.exists(lab_dir):
+            json_files = [f for f in os.listdir(lab_dir) if f.endswith(".json")]
+            if json_files:
+                json_path = os.path.join(lab_dir, json_files[0])
     if not json_path:
         print(f"[ERROR] Khong xac dinh duoc json path tu lab name: {lab_name}")
         return
