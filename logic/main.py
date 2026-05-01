@@ -72,9 +72,9 @@ def setup_hardware():
         # Request lines theo kieu v2: Dinh nghia settings cho tung line
         settings = gpiod.LineSettings(
             direction=gpiod.line.Direction.OUTPUT,
-            output_value=gpiod.line.Value.INACTIVE # Mac dinh la LOW (0) - Giu RESET ngay tu dau
+            output_value=gpiod.line.Value.INACTIVE # Mac dinh la LOW (0) - Giu RESET de dam bao an toan/sync
         )
-        
+
         # Luu doi tuong request vao bien global
         gpio_lines = gpiod.request_lines(
             "/dev/gpiochip0",
@@ -97,7 +97,7 @@ def gpio_control(action):
 
     # v2 dung Value.INACTIVE (0) và Value.ACTIVE (1)
     val = gpiod.line.Value.INACTIVE if action == "HOLD" else gpiod.line.Value.ACTIVE
-    
+
     gpio_lines.set_values({
         GPIO_STUDENT_LINE: val,
         GPIO_SIM_LINE: val
@@ -123,7 +123,8 @@ def flash_firmware(hex_path, serial, label):
             log(f"OK: Nap {label} thanh cong")
             return True
         else:
-            log(f"LOI: Nap {label} that bai")
+            error_msg = result.stderr.decode()
+            log(f"LOI: Nap {label} that bai. Chi tiet: {error_msg}")
             return False
     except Exception as e:
         log(f"LOI: He thong nap gap su co: {e}")
@@ -163,12 +164,16 @@ def run_autograder(args):
     if not manual_mode or args.flash:
         log("--- PHASE 2: FLASHING ---")
         setup_hardware()
+        gpio_control("RELEASE") # Tha reset de ST-Link co the nap code
 
         sim_hex = "/home/pi/ve_lab/stm32_temp_sim/build/sim.hex"
-        if not flash_firmware(sim_hex, STLINK_SIM, "SIMULATOR"): return
+        success_sim = flash_firmware(sim_hex, STLINK_SIM, "SIMULATOR")
 
         stu_hex = "/home/pi/ve_lab/stm32_temp_stu/build/stu.hex"
-        if not flash_firmware(stu_hex, STLINK_STUDENT, "STUDENT"): return
+        success_stu = flash_firmware(stu_hex, STLINK_STUDENT, "STUDENT")
+
+        gpio_control("HOLD") # Nap xong thi giu Reset de cho cac phase sau
+        if not success_sim or not success_stu: return
 
     # 4. Init & Register Check Phase
     if not manual_mode or args.reg:
