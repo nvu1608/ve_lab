@@ -27,6 +27,7 @@ import builder
 import sigrok
 import check_logic
 import check_reg
+import gpiod
 
 # ==============================================================================
 # SECTION 1: CONFIGURATION & PATHS
@@ -40,14 +41,17 @@ LOGIC_DIR       = f"{BASE_DIR}/logic"
 STLINK_STUDENT  = "37FF71064E573436DB011543"
 STLINK_SIM      = "10002D00182D343632525544"
 
-# GPIO Pins dieu khien chan NRST (Reset) cua STM32
-GPIO_STUDENT    = 529   # NRST STM32 Student
-GPIO_SIM        = 539   # NRST STM32 Simulator
+# GPIO Lines (BCM numbering) - Dung cho gpiod
+GPIO_STUDENT_LINE = 17   # NRST STM32 Student (tuong ung 529 sysfs)
+GPIO_SIM_LINE     = 27   # NRST STM32 Simulator (tuong ung 539 sysfs)
 
 # Thong so mac dinh
 CAPTURE_TIME    = 20
 REPO_DIR        = os.environ.get("GITHUB_WORKSPACE", BASE_DIR)
 CSV_PATH        = f"{LOGIC_DIR}/result.csv"
+
+# Global GPIO Lines
+gpio_lines = None
 
 # ==============================================================================
 # SECTION 2: UTILITIES & SYSTEM CONTROL
@@ -57,31 +61,38 @@ def log(msg):
     """Ghi log kem thoi gian thuc."""
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
 
-def gpio_control(action):
-    """Dieu khien trang thai Reset cua ca 2 MCU."""
-    for pin in [GPIO_STUDENT, GPIO_SIM]:
-        path = f"/sys/class/gpio/gpio{pin}/value"
-        if not os.path.exists(path): continue
+def setup_hardware():
+    """Khoi tao cac chan GPIO bang gpiod."""
+    global gpio_lines
+    if gpio_lines is not None:
+        return
 
-        with open(path, "w") as f:
-            if action == "HOLD":
-                f.write("0") # Giu Reset (Active Low)
-            else:
-                f.write("1") # Nha Reset
+    log("Dang khoi tao phan cung (libgpiod NRST)...")
+    try:
+        # Mo chip mac dinh (thuong la gpiochip0 tren Pi 4)
+        # Neu khong duoc, co the thu gpiochip4 tuy version kernel
+        chip = gpiod.Chip('gpiochip0')
+        lines = chip.get_lines([GPIO_STUDENT_LINE, GPIO_SIM_LINE])
+        
+        # Request output mode voi gia tri mac dinh la HIGH (Nha Reset)
+        lines.request(consumer="autograder", type=gpiod.LINE_REQ_DIR_OUT, default_vals=[1, 1])
+        gpio_lines = lines
+        log("OK: Khoi tao GPIO thanh cong")
+    except Exception as e:
+        log(f"LOI: Khong the khoi tao GPIO: {e}")
+        sys.exit(1)
+
+def gpio_control(action):
+    """Dieu khien trang thai Reset cua ca 2 MCU qua gpiod."""
+    global gpio_lines
+    if gpio_lines is None:
+        return
+
+    val = 0 if action == "HOLD" else 1
+    gpio_lines.set_values([val, val])
 
     status = "dang bi giu RESET" if action == "HOLD" else "da duoc NHA (dang chay)"
     log(f"He thong {status}")
-
-def setup_hardware():
-    """Khoi tao cac chan GPIO tren Raspberry Pi."""
-    log("Dang khoi tao phan cung (GPIO NRST)...")
-    for pin in [GPIO_STUDENT, GPIO_SIM]:
-        if not os.path.exists(f"/sys/class/gpio/gpio{pin}"):
-            with open("/sys/class/gpio/export", "w") as f:
-                f.write(str(pin))
-        with open(f"/sys/class/gpio/gpio{pin}/direction", "w") as f:
-            f.write("out")
-    gpio_control("RELEASE") # Mac dinh cho phep chay
 
 # ==============================================================================
 # SECTION 3: DEPLOYMENT LOGIC (FLASHING)
