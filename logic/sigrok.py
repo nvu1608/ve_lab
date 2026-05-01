@@ -187,7 +187,7 @@ def load_lab_decoders(lab_name):
             print(f" [WARN] Khong tim thay file .json nao trong {lab_dir}, dung DEFAULT_DECODERS")
             return DEFAULT_DECODERS
 
-    log(f"Loading decoders tu: {os.path.basename(json_path)}")
+    print(f" [LAB] Loading decoders tu: {os.path.basename(json_path)}")
     with open(json_path, encoding="utf-8") as f:
         cfg = json.load(f)
 
