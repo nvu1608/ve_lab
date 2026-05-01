@@ -364,8 +364,15 @@ def _run_capture_impl(decoders, capture_time=30):
                     if m:
                         is_addr = "address" in low
                         is_write = "write" in low
-                        prefix = ("ADDR" if is_addr else "DATA") + ("W:" if is_write else "R:")
-                        suffix = "(NACK)" if "nack" in low else ""
+                        if is_addr:
+                            prefix = "Write [" if is_write else "Read ["
+                            suffix = "]"
+                        else:
+                            prefix = "W-Data: " if is_write else "R-Data: "
+                            suffix = ""
+
+                        if "nack" in low: suffix += " (NACK)"
+
                         write_row(ts,
                             i2c_clk=st["freq_i2c"],
                             i2c=prefix + m.group(1).upper() + suffix
