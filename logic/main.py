@@ -62,34 +62,46 @@ def log(msg):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
 
 def setup_hardware():
-    """Khoi tao cac chan GPIO bang gpiod."""
+    """Khoi tao cac chan GPIO bang gpiod v2 API."""
     global gpio_lines
     if gpio_lines is not None:
         return
 
-    log("Dang khoi tao phan cung (libgpiod NRST)...")
+    log("Dang khoi tao phan cung (libgpiod v2 NRST)...")
     try:
-        # Mo chip mac dinh (thuong la gpiochip0 tren Pi 4)
-        # Neu khong duoc, co the thu gpiochip4 tuy version kernel
-        chip = gpiod.Chip('gpiochip0')
-        lines = chip.get_lines([GPIO_STUDENT_LINE, GPIO_SIM_LINE])
+        # Request lines theo kieu v2: Dinh nghia settings cho tung line
+        settings = gpiod.LineSettings(
+            direction=gpiod.line.Direction.OUTPUT,
+            output_value=gpiod.line.Value.ACTIVE # Mac dinh la HIGH (1)
+        )
         
-        # Request output mode voi gia tri mac dinh la HIGH (Nha Reset)
-        lines.request(consumer="autograder", type=gpiod.LINE_REQ_DIR_OUT, default_vals=[1, 1])
-        gpio_lines = lines
-        log("OK: Khoi tao GPIO thanh cong")
+        # Luu doi tuong request vao bien global
+        gpio_lines = gpiod.request_lines(
+            "/dev/gpiochip0",
+            consumer="autograder",
+            config={
+                GPIO_STUDENT_LINE: settings,
+                GPIO_SIM_LINE: settings
+            }
+        )
+        log("OK: Khoi tao GPIO v2 thanh cong")
     except Exception as e:
-        log(f"LOI: Khong the khoi tao GPIO: {e}")
+        log(f"LOI: Khong the request GPIO v2: {e}")
         sys.exit(1)
 
 def gpio_control(action):
-    """Dieu khien trang thai Reset cua ca 2 MCU qua gpiod."""
+    """Dieu khien trang thai Reset cua ca 2 MCU qua gpiod v2 API."""
     global gpio_lines
     if gpio_lines is None:
         return
 
-    val = 0 if action == "HOLD" else 1
-    gpio_lines.set_values([val, val])
+    # v2 dung Value.INACTIVE (0) và Value.ACTIVE (1)
+    val = gpiod.line.Value.INACTIVE if action == "HOLD" else gpiod.line.Value.ACTIVE
+    
+    gpio_lines.set_values({
+        GPIO_STUDENT_LINE: val,
+        GPIO_SIM_LINE: val
+    })
 
     status = "dang bi giu RESET" if action == "HOLD" else "da duoc NHA (dang chay)"
     log(f"He thong {status}")
