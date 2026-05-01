@@ -110,12 +110,12 @@ def check_regex_value_range(values, verify):
 
 def check_i2c_addr_ack(values, verify):
     addr   = verify["addr"].upper()
-    target = f"ADDRW:{addr}"
-    acked  = [v for v in values if target in v and "NACK" not in v]
+    # Su dung format moi: Write [68] hoac Read [68]
+    acked  = [v for v in values if f"Write [{addr}]" in v and "NACK" not in v]
     if acked:
         return True, f"Dia chi 0x{addr} ACK ({len(acked)} lan)"
-    target_r = f"ADDRR:{addr}"
-    acked_r  = [v for v in values if target_r in v and "NACK" not in v]
+
+    acked_r  = [v for v in values if f"Read [{addr}]" in v and "NACK" not in v]
     if acked_r:
         return True, f"Dia chi 0x{addr} ACK read ({len(acked_r)} lan)"
     return False, f"Khong thay dia chi 0x{addr} duoc ACK"
