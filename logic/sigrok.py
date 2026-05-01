@@ -195,6 +195,9 @@ def load_lab_decoders(lab_name):
     if not decoders:
         return DEFAULT_DECODERS
 
+    # Fix: luon dung hex cho uart de regex phia duoi bat duoc
+    decoders = [d.replace("format=ascii", "format=hex") if "uart" in d else d for d in decoders]
+
     decoder_str = ",".join(decoders)
     if "i2c" in decoder_str:
         d = f"timing:data={CHANNEL_MAP['i2c_scl']}"

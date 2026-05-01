@@ -72,7 +72,7 @@ def setup_hardware():
         # Request lines theo kieu v2: Dinh nghia settings cho tung line
         settings = gpiod.LineSettings(
             direction=gpiod.line.Direction.OUTPUT,
-            output_value=gpiod.line.Value.ACTIVE # Mac dinh la HIGH (1)
+            output_value=gpiod.line.Value.INACTIVE # Mac dinh la LOW (0) - Giu RESET ngay tu dau
         )
         
         # Luu doi tuong request vao bien global
@@ -173,6 +173,7 @@ def run_autograder(args):
     # 4. Init & Register Check Phase
     if not manual_mode or args.reg:
         log("--- PHASE 3: REGISTER CHECK ---")
+        setup_hardware()
         with open(json_path, encoding="utf-8") as f:
             cfg = json.load(f)
 
@@ -184,6 +185,7 @@ def run_autograder(args):
     # 5. Capture Logic Phase
     if not manual_mode or args.capture:
         log("--- PHASE 4: LOGIC CAPTURE ---")
+        if not sigrok.check_device(): return
         setup_hardware()
         gpio_control("HOLD")
         if os.path.exists(CSV_PATH): os.remove(CSV_PATH)
