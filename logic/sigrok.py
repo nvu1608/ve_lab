@@ -282,7 +282,9 @@ class SigrokRunner:
             m = re.search(r'(?:address|data)[- ](?:write|read):\s*([0-9a-fA-F]+)', raw, re.I)
             if m:
                 suffix = " (NACK)" if "nack" in low else ""
-                val = f"{'W' if 'write' in low else 'R'}-{'Addr' if 'address' in low else 'Data'}: {m.group(1).upper()}{suffix}"
+                type_str = "Addr" if "address" in low else "Data"
+                dir_str = "W" if "write" in low else "R"
+                val = f"{dir_str}-{type_str}: {m.group(1).upper()}{suffix}"
                 self._write_row(ts, i2c_clk=self.state["freq_i2c"], i2c=val)
 
         # 2. UART

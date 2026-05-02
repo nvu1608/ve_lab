@@ -72,7 +72,7 @@
       "verify": {
         "source": "i2c",
         "type": "regex",
-        "pattern": "Write.*68",
+        "pattern": "W-Addr: 68",
         "min_count": 1
       }
     },
@@ -83,7 +83,7 @@
       "verify": {
         "source": "i2c",
         "type": "regex",
-        "pattern": "Read.*68",
+        "pattern": "R-Addr: 68",
         "min_count": 1
       }
     },
