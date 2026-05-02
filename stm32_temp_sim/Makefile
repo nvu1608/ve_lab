@@ -77,7 +77,7 @@ Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_spi.c \
 Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_tim.c \
 Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_usart.c \
 Drivers/STM32F10x_StdPeriph_Driver/src/stm32f10x_wwdg.c \
-Src/system_stm32f10x.c  
+Src/system_stm32f10x.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -104,7 +104,7 @@ SZ = $(PREFIX)size
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
- 
+
 #######################################
 # CFLAGS
 #######################################
@@ -122,7 +122,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
 # macros for gcc
 # AS defines
-AS_DEFS = 
+AS_DEFS =
 
 # C defines
 C_DEFS =  \
@@ -132,7 +132,7 @@ $(EXTRA_DEFS)
 
 
 # AS includes
-AS_INCLUDES = 
+AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
@@ -169,7 +169,7 @@ LDSCRIPT = STM32F103C8Tx_FLASH.ld
 
 # libraries
 LIBS = -lc -lm
-LIBDIR = 
+LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 ifeq ($(PRINTF_FLOAT),1)
@@ -190,7 +190,7 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
+$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
@@ -202,16 +202,16 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(HEX) $< $@
-	
+
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(BIN) $< $@	
-	
+	$(BIN) $< $@
+
 $(BUILD_DIR):
 	mkdir $@
 
 #######################################
 # st-flash added by Ngo Hung Cuong
-#######################################		
+#######################################
 flash: $(BUILD_DIR)/$(TARGET).bin
 	st-flash write $< 0x08000000
 #######################################
@@ -219,7 +219,7 @@ flash: $(BUILD_DIR)/$(TARGET).bin
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
-  
+
 #######################################
 # dependencies
 #######################################

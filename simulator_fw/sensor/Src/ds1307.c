@@ -1047,25 +1047,23 @@ static uint8_t ds1307_simu_get_tx_byte(void *ctx)
  * HARDWARE MAPPING
  * ============================================================ */
 
-#define APP_DS1307_I2C_INSTANCE         I2C1
-#define APP_DS1307_I2C_DUTY_CYCLE       I2C_DutyCycle_2
+#define HW_DS1307_I2C_INSTANCE         I2C1
+#define HW_DS1307_I2C_DUTY_CYCLE       I2C_DutyCycle_2
 
-#define APP_DS1307_GPIO_PORT            GPIOB
-#define APP_DS1307_GPIO_CLK             RCC_APB2Periph_GPIOB
-#define APP_DS1307_GPIO_AF_CLK          RCC_APB2Periph_AFIO
+#define HW_DS1307_GPIO_PORT            GPIOB
+#define HW_DS1307_GPIO_CLK             RCC_APB2Periph_GPIOB
+#define HW_DS1307_GPIO_AF_CLK          RCC_APB2Periph_AFIO
 
-#define APP_DS1307_GPIO_PIN_SCL         GPIO_Pin_6
-#define APP_DS1307_GPIO_PIN_SDA         GPIO_Pin_7
+#define HW_DS1307_GPIO_PIN_SCL         GPIO_Pin_6
+#define HW_DS1307_GPIO_PIN_SDA         GPIO_Pin_7
 
-#define APP_DS1307_I2C_CLK              RCC_APB1Periph_I2C1
+#define HW_DS1307_I2C_CLK              RCC_APB1Periph_I2C1
 
-#define APP_DS1307_I2C_EV_IRQ           I2C1_EV_IRQn
-#define APP_DS1307_I2C_ER_IRQ           I2C1_ER_IRQn
+#define HW_DS1307_I2C_EV_IRQ           I2C1_EV_IRQn
+#define HW_DS1307_I2C_ER_IRQ           I2C1_ER_IRQn
 
-#define APP_DS1307_IRQ_PREEMPT_PRIO     6u
-#define APP_DS1307_IRQ_SUB_PRIO         0u
-
-#define APP_DS1307_TASK_PRIORITY        (tskIDLE_PRIORITY + APP_DS1307_TASK_PRIORITY_OFFSET)
+#define HW_DS1307_IRQ_PREEMPT_PRIO     6u
+#define HW_DS1307_IRQ_SUB_PRIO         0u
 
 
 /* ============================================================
@@ -1105,10 +1103,10 @@ void ds1307_sim_init(void)
 
     /* Init I2C slave driver */
     i2c_slave_init(&g_app_ds1307_i2c,
-                          APP_DS1307_I2C_INSTANCE,
+                          HW_DS1307_I2C_INSTANCE,
                           APP_DS1307_I2C_OWN_ADDRESS,
                           APP_DS1307_I2C_CLOCK_SPEED,
-                          APP_DS1307_I2C_DUTY_CYCLE);
+                          HW_DS1307_I2C_DUTY_CYCLE);
 
     /* Init DS1307 simulator */
     ds1307_simu_init(&g_app_ds1307_simu,
@@ -1140,7 +1138,7 @@ static void ds1307_sim_start_task(void)
                 "app_ds1307",
                 APP_DS1307_TASK_STACK_SIZE,
                 NULL,
-                APP_DS1307_TASK_PRIORITY,
+                (tskIDLE_PRIORITY + APP_DS1307_TASK_PRIORITY_OFFSET),
                 &g_app_ds1307_task_handle);
 
     /* Start I2C slave sau khi callback/task đã sẵn sàng */
@@ -1159,21 +1157,21 @@ static void ds1307_sim_start_task(void)
 
 static void app_ds1307_hw_init(void)
 {
-    rcc_enable(RCC_BUS_APB2, APP_DS1307_GPIO_CLK | APP_DS1307_GPIO_AF_CLK);
+    rcc_enable(RCC_BUS_APB2, HW_DS1307_GPIO_CLK | HW_DS1307_GPIO_AF_CLK);
 
-    rcc_enable(RCC_BUS_APB1, APP_DS1307_I2C_CLK);
+    rcc_enable(RCC_BUS_APB1, HW_DS1307_I2C_CLK);
 
     gpio_init(&g_app_ds1307_scl_gpio,
-            APP_DS1307_GPIO_PORT,
-            APP_DS1307_GPIO_PIN_SCL,
+            HW_DS1307_GPIO_PORT,
+            HW_DS1307_GPIO_PIN_SCL,
             GPIO_Mode_AF_OD,
             GPIO_Speed_50MHz);
 
     gpio_start(&g_app_ds1307_scl_gpio);
 
     gpio_init(&g_app_ds1307_sda_gpio,
-              APP_DS1307_GPIO_PORT,
-              APP_DS1307_GPIO_PIN_SDA,
+              HW_DS1307_GPIO_PORT,
+              HW_DS1307_GPIO_PIN_SDA,
               GPIO_Mode_AF_OD,
               GPIO_Speed_50MHz);
 
@@ -1183,14 +1181,14 @@ static void app_ds1307_hw_init(void)
     nvic_set_priority_group(NVIC_PriorityGroup_4);
 
     /* Enable I2C1 event interrupt */
-    nvic_enable_irq(APP_DS1307_I2C_EV_IRQ,
-                    APP_DS1307_IRQ_PREEMPT_PRIO,
-                    APP_DS1307_IRQ_SUB_PRIO);
+    nvic_enable_irq(HW_DS1307_I2C_EV_IRQ,
+                    HW_DS1307_IRQ_PREEMPT_PRIO,
+                    HW_DS1307_IRQ_SUB_PRIO);
 
     /* Enable I2C1 error interrupt */
-    nvic_enable_irq(APP_DS1307_I2C_ER_IRQ,
-                    APP_DS1307_IRQ_PREEMPT_PRIO,
-                    APP_DS1307_IRQ_SUB_PRIO);
+    nvic_enable_irq(HW_DS1307_I2C_ER_IRQ,
+                    HW_DS1307_IRQ_PREEMPT_PRIO,
+                    HW_DS1307_IRQ_SUB_PRIO);
 }
 
 

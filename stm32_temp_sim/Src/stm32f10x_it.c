@@ -26,10 +26,16 @@
 #include "FreeRTOS.h"
 #include "driver_timer.h"
 #include "driver_i2c_slave.h"
+#include "app_config.h"
 
+#if (ENABLE_DHT11 == 1)
 extern timer_t *g_dht11_tim_tx;
 extern timer_t *g_dht11_tim_rx;
+#endif
+
+#if (ENABLE_DS1307 == 1)
 extern i2c_slave_t g_app_ds1307_i2c;
+#endif
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -163,22 +169,30 @@ void SysTick_Handler(void)
   */
 void TIM1_CC_IRQHandler(void)
 {
+#if (ENABLE_DHT11 == 1)
     timer_irq_handler(g_dht11_tim_tx);
+#endif
 }
 
 void TIM2_IRQHandler(void)
 {
+#if (ENABLE_DHT11 == 1)
     timer_irq_handler(g_dht11_tim_rx);
+#endif
 }
 
 void I2C1_EV_IRQHandler(void)
 {
+#if (ENABLE_DS1307 == 1)
     i2c_slave_ev_irq_handler(&g_app_ds1307_i2c);
+#endif
 }
 
 void I2C1_ER_IRQHandler(void)
 {
+#if (ENABLE_DS1307 == 1)
     i2c_slave_er_irq_handler(&g_app_ds1307_i2c);
+#endif
 }
 
 /**

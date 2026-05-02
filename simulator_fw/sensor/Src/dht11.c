@@ -1,4 +1,8 @@
 #include "dht11.h"
+#include "app_config.h"
+
+#if (ENABLE_DHT11 == 1)
+
 #include "driver_timer.h"
 #include "driver_gpio.h"
 #include "driver_rcc.h"
@@ -250,6 +254,19 @@ static void prv_dht11_task(void *arg)
 }
 
 /* ================================================================
+ *  HARDWARE MAPPING
+ * ================================================================ */
+#define HW_DHT11_GPIO_PORT      GPIOA
+#define HW_DHT11_GPIO_PIN       GPIO_Pin_0
+#define HW_DHT11_RCC_GPIO       RCC_APB2Periph_GPIOA
+#define HW_DHT11_RCC_AFIO       RCC_APB2Periph_AFIO
+#define HW_DHT11_RCC_TIM_TX     RCC_APB2Periph_TIM1
+#define HW_DHT11_RCC_TIM_RX     RCC_APB1Periph_TIM2
+
+#define HW_DHT11_TIM_TX_INST    TIM1
+#define HW_DHT11_TIM_RX_INST    TIM2
+
+/* ================================================================
  *  PUBLIC API
  * ================================================================ */
 
@@ -265,14 +282,14 @@ static int prv_dht11_sim_config(const DHT11_Sim_Cfg_t *cfg)
     s.data_queue = xQueueCreate(1, sizeof(DHT11_Data_t));
 
     /* 1. RCC */
-    rcc_enable(RCC_BUS_APB2, RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_TIM1);
-    rcc_enable(RCC_BUS_APB1, RCC_APB1Periph_TIM2);
+    rcc_enable(RCC_BUS_APB2, HW_DHT11_RCC_GPIO | HW_DHT11_RCC_AFIO | HW_DHT11_RCC_TIM_TX);
+    rcc_enable(RCC_BUS_APB1, HW_DHT11_RCC_TIM_RX);
 
     /* 2. GPIO */
-    gpio_init(&s.dht_pin, GPIOA, GPIO_Pin_0, GPIO_Mode_IPU, GPIO_Speed_50MHz);
+    gpio_init(&s.dht_pin, HW_DHT11_GPIO_PORT, HW_DHT11_GPIO_PIN, GPIO_Mode_IPU, GPIO_Speed_50MHz);
 
     /* 3. Timer TX (TIM1 OC) */
-    timer_init(&s.tim_tx, TIM1);
+    timer_init(&s.tim_tx, HW_DHT11_TIM_TX_INST);
     timer_oc_cfg_t oc_cfg = {
         .prescaler = (uint16_t)(SystemCoreClock / 1000000u),
         .period = 0xFFFFu,
@@ -283,7 +300,7 @@ static int prv_dht11_sim_config(const DHT11_Sim_Cfg_t *cfg)
     timer_oc_init(&s.tim_tx, TIMER_CH1, &oc_cfg);
 
     /* 4. Timer RX (TIM2 IC) */
-    timer_init(&s.tim_rx, TIM2);
+    timer_init(&s.tim_rx, HW_DHT11_TIM_RX_INST);
     timer_ic_cfg_t ic_cfg = {
         .prescaler = (uint16_t)(SystemCoreClock / 1000000u),
         .period = 0xFFFFu,
@@ -312,10 +329,10 @@ static int prv_dht11_sim_run(void)
 void dht11_sim_init(void)
 {
     DHT11_Sim_Cfg_t sim_cfg;
-    sim_cfg.init_data.humidity    = 60;
-    sim_cfg.init_data.temperature = 25;
-    sim_cfg.task_priority         = 2u;
-    sim_cfg.task_stack            = 128u;
+    sim_cfg.init_data.humidity    = APP_DHT11_INIT_HUMIDITY;
+    sim_cfg.init_data.temperature = APP_DHT11_INIT_TEMPERATURE;
+    sim_cfg.task_priority         = (tskIDLE_PRIORITY + APP_DHT11_TASK_PRIORITY_OFFSET);
+    sim_cfg.task_stack            = APP_DHT11_TASK_STACK_SIZE;
 
     prv_dht11_sim_config(&sim_cfg);
     prv_dht11_sim_run();
@@ -327,3 +344,5 @@ int dht11_sim_set_data(const DHT11_Data_t *data)
     xQueueOverwrite(s.data_queue, data);
     return DHT11_SIM_OK;
 }
+
+#endif /* ENABLE_DHT11 */
