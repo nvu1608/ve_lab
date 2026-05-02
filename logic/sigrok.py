@@ -55,9 +55,9 @@ class Config:
         f"uart:baudrate=115200:tx={CHANNEL_MAP['uart_tx']}:format=hex",
         f"pwm:data={CHANNEL_MAP['pwm']}",
         f"spi:mosi={CHANNEL_MAP['spi_mosi']}:clk={CHANNEL_MAP['spi_clk']}:cs={CHANNEL_MAP['spi_cs']}:wordsize=8:cpol=0:cpha=0",
-        f"timing:data={Config.CHANNEL_MAP['i2c_scl']}",
-        f"timing:data={Config.CHANNEL_MAP['spi_clk']}",
-        f"timing:data={Config.CHANNEL_MAP['dht11']}",
+        f"timing:data={CHANNEL_MAP['i2c_scl']}",
+        f"timing:data={CHANNEL_MAP['spi_clk']}",
+        f"timing:data={CHANNEL_MAP['dht11']}",
     ]
 
 # ==============================================================================
