@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
 """
-Embedded Hardware Autograder — Logic Analyzer Tool
-Capture va decode tin hieu tu 8 kenh, hien thi dang bang + luu CSV.
+EMBEDDED HARDWARE AUTOGRADER — LOGIC ANALYZER ENGINE (v2.0)
+-----------------------------------------------------------
+Mô tả: Công cụ capture và decode tín hiệu Logic tự động cho hệ thống Autograder.
+Hỗ trợ: I2C, UART, SPI, PWM, DHT11.
 
-Kenh mac dinh:
-  D0 = I2C SCL
-  D1 = I2C SDA
-  D2 = UART TX
-  D3 = DHT11
-  D4 = SPI MOSI
-  D5 = SPI CLK
-  D6 = SPI CS
-  D7 = PWM
-
-Su dung:
-  python3 sigrok.py                  # kiem tra device + chay
-  python3 sigrok.py --no-check       # bo qua kiem tra device (main_grader goi)
-  python3 sigrok.py --time 10        # capture 10 giay (mac dinh: 30)
-  python3 sigrok.py --lab lab7-i2c   # chi decode protocol cua lab do (tu json)
+CÁC BƯỚC THỰC HIỆN (PIPELINE):
+    BƯỚC 1: Kiểm tra kết nối phần cứng (Device Scan)
+    BƯỚC 2: Load cấu hình Lab và Mapping các kênh (Pinout)
+    BƯỚC 3: Khởi tạo tiến trình sigrok-cli (Non-blocking)
+    BƯỚC 4: Xử lý luồng dữ liệu Real-time (Regex Decoding)
+    BƯỚC 5: Tổng hợp dữ liệu và xuất file kết quả (CSV)
 """
 
 import subprocess
@@ -32,494 +25,384 @@ import argparse
 from itertools import zip_longest
 from datetime import datetime
 
-# ─── Cau hinh kenh ───────────────────────────────────────────────────────────
+# ==============================================================================
+# SECTION 1: CẤU HÌNH HỆ THỐNG (SYSTEM CONFIG)
+# ==============================================================================
 
-CHANNEL_MAP = {
-    "i2c_scl":  "D0",
-    "i2c_sda":  "D1",
-    "uart_tx":  "D2",
-    "dht11":    "D3",
-    "spi_mosi": "D4",
-    "spi_clk":  "D5",
-    "spi_cs":   "D6",
-    "pwm":      "D7",
-}
-
-# ─── Cau hinh decoder theo lab ───────────────────────────────────────────────
-
-DEFAULT_DECODERS = [
-    f"i2c:scl={CHANNEL_MAP['i2c_scl']}:sda={CHANNEL_MAP['i2c_sda']}",
-    f"uart:baudrate=115200:tx={CHANNEL_MAP['uart_tx']}:format=hex",
-    f"pwm:data={CHANNEL_MAP['pwm']}",
-    f"spi:mosi={CHANNEL_MAP['spi_mosi']}:clk={CHANNEL_MAP['spi_clk']}:cs={CHANNEL_MAP['spi_cs']}:wordsize=8:cpol=0:cpha=0",
-    f"timing:data={CHANNEL_MAP['i2c_scl']}",
-    f"timing:data={CHANNEL_MAP['spi_clk']}",
-    f"timing:data={CHANNEL_MAP['dht11']}",
-]
-
-ASSIGNMENTS_DIR = "/home/pi/ve_lab/assignment"
-CSV_PATH        = "/home/pi/ve_lab/logic/result.csv"
-SAMPLERATE      = "2M"
-
-# ─── Header ──────────────────────────────────────────────────────────────────
-
-COL = {
-    "time":     11,
-    "i2c_clk":  9,
-    "i2c":      14,
-    "uart":     24,
-    "pwm":      14,
-    "dht11":    19,
-    "spi_clk":  9,
-    "spi":      12,
-    "cs":       8,
-}
-
-def print_header():
-    h = (
-        f"{'THOI GIAN':<{COL['time']}} | "
-        f"{'I2C CLK':<{COL['i2c_clk']}} | "
-        f"{'I2C':<{COL['i2c']}} | "
-        f"{'UART':<{COL['uart']}} | "
-        f"{'PWM':<{COL['pwm']}} | "
-        f"{'DHT11':<{COL['dht11']}} | "
-        f"{'SPI CLK':<{COL['spi_clk']}} | "
-        f"{'SPI':<{COL['spi']}} | "
-        f"{'CS':<{COL['cs']}}"
-    )
-    sep = "-" * len(h)
-    print("=" * len(h))
-    print(h)
-    print(sep)
-    return sep
-
-def print_row(ts, i2c_clk="", i2c="", uart="", pwm="", dht11="", spi_clk="", spi="", cs=""):
-    print(
-        f"[{ts:>{COL['time']-2}}] | "
-        f"{i2c_clk:<{COL['i2c_clk']}} | "
-        f"{i2c:<{COL['i2c']}} | "
-        f"{uart:<{COL['uart']}} | "
-        f"{pwm:<{COL['pwm']}} | "
-        f"{dht11:<{COL['dht11']}} | "
-        f"{spi_clk:<{COL['spi_clk']}} | "
-        f"{spi:<{COL['spi']}} | "
-        f"{cs:<{COL['cs']}}"
-    )
-
-# ─── DHT11 decoder ───────────────────────────────────────────────────────────
-
-def decode_dht11(pulses_us):
-    """
-    pulses_us: list do rong tung pulse xen ke LOW/HIGH
-    Pattern thuc te:
-      [0] 20ms   = start LOW
-      [1] ~33us  = response LOW
-      [2] ~62us  = response HIGH
-      [3] ~81us  = sync (co the co hoac khong)
-      [4+] cap (LOW~52us, HIGH~27us=bit0 | ~71us=bit1)
-    """
-    if len(pulses_us) < 43:
-        return None
-
-    idx = 3
-    bits = []
-    while idx < len(pulses_us) - 1 and len(bits) < 40:
-        low_p  = pulses_us[idx]
-        high_p = pulses_us[idx + 1]
-        if 35 < low_p < 75:
-            bits.append(1 if high_p > 42 else 0)
-            idx += 2
-        else:
-            idx += 1
-
-    if len(bits) < 40:
-        return None
-
-    data = [0] * 5
-    for i in range(40):
-        if bits[i]:
-            data[i // 8] |= (1 << (7 - (i % 8)))
-
-    checksum = sum(data[:4]) & 0xFF
-    if checksum != data[4]:
-        return None
-
-    return f"{data[0]:02X} {data[1]:02X} {data[2]:02X} {data[3]:02X} {data[4]:02X}"
-
-# ─── Kiem tra device ─────────────────────────────────────────────────────────
-
-def check_device():
-    print("=" * 80)
-    print(" [HE THONG] Kiem tra Logic Analyzer...")
-    result = subprocess.run(
-        ["sigrok-cli", "-d", "fx2lafw", "--scan"],
-        capture_output=True, text=True, timeout=10
-    )
-    combined = result.stdout + result.stderr
-    if "fx2lafw" in combined.lower() or "saleae" in combined.lower():
-        print(" OK: Logic Analyzer san sang!")
-        return True
-    print(" LOI: Khong tim thay Logic Analyzer!")
-    print(f"  stdout: {result.stdout.strip()}")
-    print(f"  stderr: {result.stderr.strip()}")
-    return False
-
-# ─── Doc cau hinh lab tu JSON ─────────────────────────────────────────────────
-
-def load_lab_decoders(lab_name):
-    """
-    Tim file .json trong thu muc lab de doc cau hinh decoder.
-    Tra ve list decoder string, hoac DEFAULT_DECODERS neu khong tim thay.
-    """
-    lab_dir = os.path.join(ASSIGNMENTS_DIR, lab_name)
-    if not os.path.exists(lab_dir):
-        return DEFAULT_DECODERS
-
-    # 1. Thu tim file trung ten thu muc (vd: lab6_ds1307.json)
-    json_path = os.path.join(lab_dir, f"{lab_name}.json")
-    
-    # 2. Neu khong thay, lay file .json dau tien tim thay
-    if not os.path.exists(json_path):
-        json_files = [f for f in os.listdir(lab_dir) if f.endswith(".json")]
-        if json_files:
-            json_path = os.path.join(lab_dir, json_files[0])
-        else:
-            print(f" [WARN] Khong tim thay file .json nao trong {lab_dir}, dung DEFAULT_DECODERS")
-            return DEFAULT_DECODERS
-
-    print(f" [LAB] Loading decoders tu: {os.path.basename(json_path)}")
-    with open(json_path, encoding="utf-8") as f:
-        cfg = json.load(f)
-
-    decoders = cfg.get("decoders", [])
-    if not decoders:
-        return DEFAULT_DECODERS
-
-    # Fix: luon dung hex cho uart de regex phia duoi bat duoc
-    decoders = [d.replace("format=ascii", "format=hex") if "uart" in d else d for d in decoders]
-
-    decoder_str = ",".join(decoders)
-    if "i2c" in decoder_str:
-        d = f"timing:data={CHANNEL_MAP['i2c_scl']}"
-        if d not in decoders:
-            decoders.append(d)
-
-    if "spi" in decoder_str:
-        d = f"timing:data={CHANNEL_MAP['spi_clk']}"
-        if d not in decoders:
-            decoders.append(d)
-
-    dht_decoder = f"timing:data={CHANNEL_MAP['dht11']}"
-    if "dht11" in decoder_str and dht_decoder not in decoders:
-        decoders.append(dht_decoder)
-
-    print(f" [LAB] Load {json_path}")
-    print(f" [DECODER] {', '.join(decoders)}")
-    return decoders
-
-# ─── Main capture ─────────────────────────────────────────────────────────────
-
-_proc   = None   # sigrok-cli process
-_thread = None   # thread doc stdout
-
-def start_capture(decoders, capture_time=30):
-    """Khoi dong sigrok-cli NON-BLOCKING. Goi truoc khi nha reset."""
-    global _proc, _thread
-    _proc, _thread = _run_capture_impl(decoders, capture_time)
-
-def wait_capture():
-    """Doi sigrok-cli va thread xu ly stdout ket thuc."""
-    global _proc, _thread
-    if _proc:
-        _proc.wait()
-    if _thread:
-        _thread.join()
-    _proc = None
-    _thread = None
-
-def run_capture(decoders, capture_time=30):
-    """Blocking — dung khi goi standalone."""
-    proc, thread = _run_capture_impl(decoders, capture_time)
-    proc.wait()
-    thread.join()
-
-def _run_capture_impl(decoders, capture_time=30):
-
-    decoder_str = ",".join(decoders)
-
-    annots = []
-    if "i2c" in decoder_str:
-        annots.append("i2c=address-write:address-read:data-write:data-read")
-    if "uart" in decoder_str:
-        annots.append("uart=tx-data")
-    if "pwm" in decoder_str:
-        annots.append("pwm=duty-cycle:period")
-    if "spi" in decoder_str:
-        annots.append("spi=mosi-data")
-    if "timing" in decoder_str:
-        annots.append("timing=time")
-
-    # Parse channel tu decoder list
-    used_channels = set()
-    for d in decoders:
-        for part in d.split(":"):
-            val = part.split("=")[-1]
-            if re.match(r'^D\d+$', val):
-                used_channels.add(val)
-    channels_arg = ",".join(sorted(used_channels, key=lambda x: int(x[1:])))
-
-    cmd = [
-        "sigrok-cli",
-        "-d", "fx2lafw",
-        "--config", f"samplerate={SAMPLERATE}",
-        "--time", f"{capture_time}s",
-        "--channels", channels_arg,
-        *[arg for d in decoders for arg in ("-P", d)],
-        "-A", ",".join(annots),
-    ]
-
-    print(f"\n [CMD] {' '.join(cmd)}\n")
-
-    timing_channels = []
-    for d in decoders:
-        m = re.search(r'timing:data=(D\d+)', d)
-        if m:
-            timing_channels.append(m.group(1))
-
-    # CSV
-    os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
-    f_csv = open(CSV_PATH, "w", newline="", encoding="utf-8")
-    writer = csv.writer(f_csv)
-    writer.writerow(["Time(ms)", "I2C_CLK", "I2C", "UART", "PWM", "DHT11", "SPI_CLK", "SPI", "CS"])
-    f_csv.flush()
-
-    sep = print_header()
-
-    # State
-    st = {
-        "base_time":    None,
-        "freq_i2c":     "--",
-        "freq_spi":     "--",
-        "uart_buf":     "",
-        "uart_last_t":  0,
-        "pwm_last":     "",
-        "pwm_time":     0,
-        "dht_pulses":   [],
-        "dht_last":     "",
-        "dht_last_t":   0,
-        "cs_active":    False,
-        "spi_last_t":   0,
-        "timing_half":  {},
-        "timing_buf":   {},
+class Config:
+    # Định nghĩa mapping các chân vật lý (D0-D7) sang tên ngoại vi
+    CHANNEL_MAP = {
+        "i2c_scl":  "D0",
+        "i2c_sda":  "D1",
+        "uart_tx":  "D2",
+        "dht11":    "D3",
+        "spi_mosi": "D4",
+        "spi_clk":  "D5",
+        "spi_cs":   "D6",
+        "pwm":      "D7",
     }
 
-    def write_row(ts, **kwargs):
-        """In ra terminal va ghi CSV."""
-        cols = {
-            "i2c_clk": "", "i2c": "", "uart": "",
-            "pwm": "", "dht11": "", "spi_clk": "", "spi": "", "cs": ""
+    # Đường dẫn và thông số kỹ thuật
+    BASE_DIR        = "/home/pi/ve_lab"
+    ASSIGNMENTS_DIR = f"{BASE_DIR}/assignment"
+    CSV_PATH        = f"{BASE_DIR}/logic/result.csv"
+    SAMPLERATE      = "2M"
+    DEFAULT_TIME    = 30
+
+    # Cấu hình Decoder mặc định nếu không có file JSON
+    DEFAULT_DECODERS = [
+        f"i2c:scl={CHANNEL_MAP['i2c_scl']}:sda={CHANNEL_MAP['i2c_sda']}",
+        f"uart:baudrate=115200:tx={CHANNEL_MAP['uart_tx']}:format=hex",
+        f"pwm:data={CHANNEL_MAP['pwm']}",
+        f"spi:mosi={CHANNEL_MAP['spi_mosi']}:clk={CHANNEL_MAP['spi_clk']}:cs={CHANNEL_MAP['spi_cs']}:wordsize=8:cpol=0:cpha=0",
+        f"timing:data={Config.CHANNEL_MAP['i2c_scl']}",
+        f"timing:data={Config.CHANNEL_MAP['spi_clk']}",
+        f"timing:data={Config.CHANNEL_MAP['dht11']}",
+    ]
+
+# ==============================================================================
+# SECTION 2: GIẢI MÃ GIAO THỨC ĐẶC THÙ (CUSTOM DECODERS)
+# ==============================================================================
+
+class ProtocolDecoders:
+    @staticmethod
+    def decode_dht11(pulses_us):
+        """Giải mã chuỗi xung thời gian thành dữ liệu DHT11 (40 bits)."""
+        if len(pulses_us) < 43: return None
+
+        idx = 3 # Bỏ qua Start/Response bits
+        bits = []
+        while idx < len(pulses_us) - 1 and len(bits) < 40:
+            low_p  = pulses_us[idx]
+            high_p = pulses_us[idx + 1]
+            if 35 < low_p < 75:
+                bits.append(1 if high_p > 42 else 0)
+                idx += 2
+            else: idx += 1
+
+        if len(bits) < 40: return None
+
+        data = [0] * 5
+        for i in range(40):
+            if bits[i]: data[i // 8] |= (1 << (7 - (i % 8)))
+
+        # Kiểm tra Checksum
+        if (sum(data[:4]) & 0xFF) != data[4]: return None
+        return f"{data[0]:02X} {data[1]:02X} {data[2]:02X} {data[3]:02X} {data[4]:02X}"
+
+# ==============================================================================
+# SECTION 3: CÔNG CỤ ĐIỀU KHIỂN SIGROK (SIGROK ENGINE)
+# ==============================================================================
+
+class SigrokRunner:
+    def __init__(self, lab_name=None):
+        self.lab_name = lab_name
+        self.proc = None
+        self.thread = None
+        self.decoders = []
+        self.timing_channels = []
+
+        # Trạng thái capture (State management)
+        self.base_time = None
+        self.state = {
+            "freq_i2c": "--", "freq_spi": "--",
+            "uart_buf": "", "uart_last_t": 0,
+            "pwm_last": "", "pwm_time": 0,
+            "dht_pulses": [], "dht_last": "", "dht_last_t": 0,
+            "cs_active": False, "spi_last_t": 0,
+            "timing_buf": {}
         }
-        cols.update(kwargs)
-        print_row(ts, **cols)
-        writer.writerow([
-            ts, cols["i2c_clk"], cols["i2c"], cols["uart"],
-            cols["pwm"], cols["dht11"], cols["spi_clk"], cols["spi"], cols["cs"]
-        ])
-        f_csv.flush()
 
-    proc = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        bufsize=1,          # line-buffered
-    )
+        # CSV Writer
+        self.f_csv = None
+        self.writer = None
 
-    def drain_stderr():
-        for line in iter(proc.stderr.readline, ""):
-            line = line.strip()
-            if line and "warning" not in line.lower() and "libusb" not in line.lower():
-                print(f" [SIGROK] {line}", flush=True)
-    threading.Thread(target=drain_stderr, daemon=True).start()
+    def check_device(self, retries=3, delay=2):
+        """BƯỚC 1: Kiểm tra sự hiện diện của phần cứng (với cơ chế Retry)."""
+        print("=" * 80)
+        for i in range(retries):
+            print(f" [HE THONG] Dang quet Logic Analyzer (Lan {i+1}/{retries})...")
+            try:
+                result = subprocess.run(
+                    ["sigrok-cli", "-d", "fx2lafw", "--scan"],
+                    capture_output=True, text=True, timeout=10
+                )
+                if "fx2lafw" in (result.stdout + result.stderr).lower():
+                    print(" OK: Thiet bi da san sang!")
+                    return True
+            except Exception: pass
 
-    def process_stdout():
+            if i < retries - 1:
+                print(f" [!] Khong tim thay thiet bi, thu lai sau {delay}s...")
+                time.sleep(delay)
+
+        print(" LOI: Khong tim thay Logic Analyzer. Vui long kiem tra ket noi USB!")
+        return False
+
+    def load_config(self):
+        """BƯỚC 2: Load decoder tu file Lab JSON hoac dung mac dinh."""
+        if not self.lab_name:
+            self.decoders = Config.DEFAULT_DECODERS
+            return
+
+        lab_dir = os.path.join(Config.ASSIGNMENTS_DIR, self.lab_name)
+        json_path = os.path.join(lab_dir, f"{self.lab_name}.json")
+
+        # Tim file json neu khong dung ten mac dinh
+        if not os.path.exists(json_path):
+            if os.path.exists(lab_dir):
+                jsons = [f for f in os.listdir(lab_dir) if f.endswith(".json")]
+                if jsons: json_path = os.path.join(lab_dir, jsons[0])
+            else:
+                print(f" [WARN] Lab {self.lab_name} khong ton tai, dung default config.")
+                self.decoders = Config.DEFAULT_DECODERS
+                return
+
         try:
-            for raw in iter(proc.stdout.readline, ""):
+            with open(json_path, encoding="utf-8") as f:
+                cfg = json.load(f)
+                self.decoders = cfg.get("decoders", Config.DEFAULT_DECODERS)
+                # Chuan hoa UART format sang hex de de regex
+                self.decoders = [d.replace("format=ascii", "format=hex") if "uart" in d else d for d in self.decoders]
+        except Exception as e:
+            print(f" [ERR] Khong the load JSON: {e}")
+            self.decoders = Config.DEFAULT_DECODERS
+
+        # Tu dong them timing decoders neu can thiet
+        self._inject_timing_decoders()
+        print(f" [INFO] Da load {len(self.decoders)} decoders.")
+
+    def _inject_timing_decoders(self):
+        """Helper: Them cac kenh do thoi gian (timing) cho cac giao thuc tuong ung."""
+        decoder_str = ",".join(self.decoders)
+        mappings = [("i2c", "i2c_scl"), ("spi", "spi_clk"), ("dht11", "dht11")]
+        for protocol, channel_key in mappings:
+            if protocol in decoder_str:
+                d = f"timing:data={Config.CHANNEL_MAP[channel_key]}"
+                if d not in self.decoders: self.decoders.append(d)
+
+    def start(self, capture_time=Config.DEFAULT_TIME):
+        """BƯỚC 3: Khoi chay sigrok-cli va luong xu ly stdout."""
+        # Chuan bi CMD
+        annots = self._build_annotations()
+        channels = self._get_used_channels()
+
+        cmd = [
+            "sigrok-cli", "-d", "fx2lafw",
+            "--config", f"samplerate={Config.SAMPLERATE}",
+            "--time", f"{capture_time}s",
+            "--channels", channels,
+            *[arg for d in self.decoders for arg in ("-P", d)],
+            "-A", ",".join(annots),
+        ]
+
+        print(f"\n [EXEC] {' '.join(cmd)}\n")
+
+        # Chuan bi file CSV
+        os.makedirs(os.path.dirname(Config.CSV_PATH), exist_ok=True)
+        self.f_csv = open(Config.CSV_PATH, "w", newline="", encoding="utf-8")
+        self.writer = csv.writer(self.f_csv)
+        self.writer.writerow(["Time(ms)", "I2C_CLK", "I2C", "UART", "PWM", "DHT11", "SPI_CLK", "SPI", "CS"])
+
+        self._print_table_header()
+
+        # Run process
+        self.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+
+        # Start monitor threads
+        threading.Thread(target=self._drain_stderr, daemon=True).start()
+        self.thread = threading.Thread(target=self._process_stdout, daemon=False)
+        self.thread.start()
+
+    def wait(self):
+        """Doi capture hoan tat."""
+        if self.proc: self.proc.wait()
+        if self.thread: self.thread.join()
+        if self.f_csv: self.f_csv.close()
+
+    # --- INTERNAL METHODS ---
+
+    def _get_used_channels(self):
+        used = set()
+        for d in self.decoders:
+            for part in d.split(":"):
+                val = part.split("=")[-1]
+                if re.match(r'^D\d+$', val): used.add(val)
+        return ",".join(sorted(used, key=lambda x: int(x[1:])))
+
+    def _build_annotations(self):
+        decoder_str = ",".join(self.decoders)
+        annots = []
+        mapping = {
+            "i2c": "i2c=address-write:address-read:data-write:data-read",
+            "uart": "uart=tx-data",
+            "pwm": "pwm=duty-cycle:period",
+            "spi": "spi=mosi-data",
+            "timing": "timing=time"
+        }
+        for k, v in mapping.items():
+            if k in decoder_str: annots.append(v)
+        return annots
+
+    def _drain_stderr(self):
+        for line in iter(self.proc.stderr.readline, ""):
+            if "warning" not in line.lower() and "libusb" not in line.lower():
+                print(f" [SIGROK-ERR] {line.strip()}", flush=True)
+
+    def _process_stdout(self):
+        """BƯỚC 4: Logic xu ly tung dong du lieu tu sigrok-cli."""
+        # Lay danh sach timing channels de map index
+        timing_list = []
+        for d in self.decoders:
+            m = re.search(r'timing:data=(D\d+)', d)
+            if m: timing_list.append(m.group(1))
+
+        try:
+            for raw in iter(self.proc.stdout.readline, ""):
                 raw = raw.strip()
-                if not raw:
-                    continue
-                if any(x in raw.lower() for x in ["warning", "libusb", "note"]):
-                    continue
+                if not raw or any(x in raw.lower() for x in ["warning", "libusb", "note"]): continue
 
                 now = time.perf_counter_ns()
-                if st["base_time"] is None:
-                    st["base_time"] = now
-                ts = f"{(now - st['base_time']) / 1e6:.3f}"
+                if self.base_time is None: self.base_time = now
+                ts = f"{(now - self.base_time) / 1e6:.3f}"
 
-                low = raw.lower()
-
-                # ── I2C ──────────────────────────────────────────────────────
-                if "i2c" in low:
-                    m = re.search(r'(?:address|data)[- ](?:write|read):\s*([0-9a-fA-F]+)', raw, re.I)
-                    if m:
-                        is_addr = "address" in low
-                        is_write = "write" in low
-                        if is_addr:
-                            prefix = "Write [" if is_write else "Read ["
-                            suffix = "]"
-                        else:
-                            prefix = "W-Data: " if is_write else "R-Data: "
-                            suffix = ""
-
-                        if "nack" in low: suffix += " (NACK)"
-
-                        write_row(ts,
-                            i2c_clk=st["freq_i2c"],
-                            i2c=prefix + m.group(1).upper() + suffix
-                        )
-
-                # ── UART ─────────────────────────────────────────────────────
-                elif "uart" in low:
-                    m = re.search(r'uart-\d+:\s*([0-9a-fA-F]{2})\s*$', raw, re.I)
-                    if m:
-                        try:
-                            ch = chr(int(m.group(1), 16))
-                            st["uart_last_t"] = now
-                            if ch in ('\n', '\r'):
-                                if st["uart_buf"]:
-                                    write_row(ts, uart=st["uart_buf"].strip())
-                                    st["uart_buf"] = ""
-                            elif ch.isprintable():
-                                st["uart_buf"] += ch
-                        except ValueError:
-                            pass
-
-                # ── SPI ──────────────────────────────────────────────────────
-                elif "spi" in low:
-                    m = re.search(r'spi-\d+:\s*([0-9a-fA-F]{2})\s*$', raw, re.I)
-                    if m:
-                        st["spi_last_t"] = now
-                        if not st["cs_active"]:
-                            write_row(ts, cs="LOW")
-                            st["cs_active"] = True
-                        write_row(ts,
-                            spi_clk=st["freq_spi"],
-                            spi="0x" + m.group(1).upper()
-                        )
-
-                # ── PWM ──────────────────────────────────────────────────────
-                elif "pwm" in low:
-                    freq_m = re.search(r'([0-9.]+)\s*([kK]?)Hz', raw, re.I)
-                    duty_m = re.search(r'([0-9.]+)\s*%', raw)
-                    if freq_m and duty_m:
-                        freq_val = float(freq_m.group(1))
-                        if freq_m.group(2).lower() != 'k':
-                            freq_val /= 1000.0
-                        pwm_str = f"{freq_val:.1f}kHz {round(float(duty_m.group(1)), 1)}%"
-                        if pwm_str != st["pwm_last"] or (now - st["pwm_time"]) > 1_000_000_000:
-                            st["pwm_last"] = pwm_str
-                            st["pwm_time"] = now
-                            write_row(ts, pwm=pwm_str)
-
-                # ── TIMING ───────────────────────────────────────────────────
-                elif "timing" in low:
-                    ch_m = re.search(r'timing-(\d+)', raw)
-                    ch_id = int(ch_m.group(1)) if ch_m else 0
-                    ch_name = timing_channels[ch_id - 1] if 0 < ch_id <= len(timing_channels) else None
-
-                    freq_m = re.search(r'\(([0-9.]+)\s*([kKmM]?)Hz\)', raw)
-                    if freq_m and ch_name == CHANNEL_MAP['i2c_scl']:
-                        fval = float(freq_m.group(1))
-                        funit = freq_m.group(2).lower()
-                        if funit == 'm':
-                            fval *= 1000.0
-                        elif funit == '':
-                            fval /= 1000.0
-                        if fval > 50:
-                            st["freq_i2c"] = f"{fval:.1f}k"
-
-                    elif freq_m and ch_name == CHANNEL_MAP['spi_clk']:
-                        fval = float(freq_m.group(1))
-                        funit = freq_m.group(2).lower()
-                        if funit == 'm':
-                            fval *= 1000.0
-                        elif funit == '':
-                            fval /= 1000.0
-                        if fval > 50:
-                            st["freq_spi"] = f"{fval:.1f}k"
-
-                    elif ch_name == CHANNEL_MAP['dht11']:
-                        time_m = re.search(r'([0-9.]+)\s*([μµum]s|ms|ns|s)\b', raw, re.I)
-                        if time_m:
-                            val = float(time_m.group(1))
-                            unit = time_m.group(2).lower().replace('μ','u').replace('µ','u')
-                            to_us = {"s": 1e6, "ms": 1e3, "us": 1.0, "ns": 1e-3}
-                            us = val * to_us.get(unit, 1.0)
-                            if ch_id not in st["timing_buf"]:
-                                st["timing_buf"][ch_id] = []
-
-                            if 12000 < us < 30000:
-                                buf = st["timing_buf"][ch_id]
-                                if len(buf) >= 40:
-                                    result = decode_dht11(buf)
-                                    if result:
-                                        if result != st["dht_last"] or (now - st["dht_last_t"]) > 1_000_000_000:
-                                            st["dht_last"] = result
-                                            st["dht_last_t"] = now
-                                            write_row(ts, dht11=result)
-                                st["timing_buf"][ch_id] = []
-                            elif us < 500000:
-                                st["timing_buf"][ch_id].append(us)
-
-                # ── CS HIGH detect (timeout) ──────────────────────────────────
-                if st["cs_active"] and (now - st["spi_last_t"]) > 50_000_000:
-                    write_row(ts, cs="HIGH")
-                    st["cs_active"] = False
-
-                # ── UART timeout flush ────────────────────────────────────────
-                if st["uart_buf"] and (now - st["uart_last_t"]) > 500_000_000:
-                    write_row(ts, uart=st["uart_buf"].strip())
-                    st["uart_buf"] = ""
+                self._handle_raw_line(raw, ts, now, timing_list)
+                self._handle_timeouts(now, ts)
 
         except Exception as e:
-            print(f" [ERR] process_stdout: {e}", flush=True)
+            print(f" [ERR] Output processing: {e}")
         finally:
-            # Flush UART buffer con lai
-            if st["uart_buf"]:
-                ts = f"{(time.perf_counter_ns() - st['base_time']) / 1e6:.3f}" if st["base_time"] else "0"
-                write_row(ts, uart=st["uart_buf"].strip())
-                st["uart_buf"] = ""
-            f_csv.close()
-            print(f"\n [XONG] Da luu: {CSV_PATH}")
-            print(f"        Thoi gian: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            self._final_flush()
 
-    t = threading.Thread(target=process_stdout, daemon=False)
-    t.start()
-    return proc, t
+    def _handle_raw_line(self, raw, ts, now_ns, timing_list):
+        low = raw.lower()
 
-# ─── Entry point ──────────────────────────────────────────────────────────────
+        # 1. I2C
+        if "i2c" in low:
+            m = re.search(r'(?:address|data)[- ](?:write|read):\s*([0-9a-fA-F]+)', raw, re.I)
+            if m:
+                suffix = " (NACK)" if "nack" in low else ""
+                val = f"{'W' if 'write' in low else 'R'}-{'Addr' if 'address' in low else 'Data'}: {m.group(1).upper()}{suffix}"
+                self._write_row(ts, i2c_clk=self.state["freq_i2c"], i2c=val)
+
+        # 2. UART
+        elif "uart" in low:
+            m = re.search(r'uart-\d+:\s*([0-9a-fA-F]{2})\s*$', raw, re.I)
+            if m:
+                ch = chr(int(m.group(1), 16))
+                self.state["uart_last_t"] = now_ns
+                if ch in ('\n', '\r'):
+                    if self.state["uart_buf"]:
+                        self._write_row(ts, uart=self.state["uart_buf"].strip())
+                        self.state["uart_buf"] = ""
+                elif ch.isprintable(): self.state["uart_buf"] += ch
+
+        # 3. SPI
+        elif "spi" in low:
+            m = re.search(r'spi-\d+:\s*([0-9a-fA-F]{2})\s*$', raw, re.I)
+            if m:
+                self.state["spi_last_t"] = now_ns
+                if not self.state["cs_active"]:
+                    self._write_row(ts, cs="LOW")
+                    self.state["cs_active"] = True
+                self._write_row(ts, spi_clk=self.state["freq_spi"], spi="0x" + m.group(1).upper())
+
+        # 4. PWM
+        elif "pwm" in low:
+            f_m = re.search(r'([0-9.]+)\s*([kK]?)Hz', raw, re.I)
+            d_m = re.search(r'([0-9.]+)\s*%', raw)
+            if f_m and d_m:
+                f_val = float(f_m.group(1)) * (1000 if f_m.group(2).lower() == 'k' else 1)
+                pwm_str = f"{f_val/1000:.1f}kHz {round(float(d_m.group(1)), 1)}%"
+                if pwm_str != self.state["pwm_last"] or (now_ns - self.state["pwm_time"]) > 1e9:
+                    self.state["pwm_last"], self.state["pwm_time"] = pwm_str, now_ns
+                    self._write_row(ts, pwm=pwm_str)
+
+        # 5. TIMING (I2C/SPI Freq & DHT11)
+        elif "timing" in low:
+            ch_id_m = re.search(r'timing-(\d+)', raw)
+            if not ch_id_m: return
+            ch_idx = int(ch_id_m.group(1)) - 1
+            ch_name = timing_list[ch_idx] if ch_idx < len(timing_list) else None
+
+            f_m = re.search(r'\(([0-9.]+)\s*([kKmM]?)Hz\)', raw)
+            if f_m:
+                f_val = float(f_m.group(1)) * {"m": 1e6, "k": 1e3, "": 1.0}.get(f_m.group(2).lower(), 1.0)
+                if ch_name == Config.CHANNEL_MAP['i2c_scl'] and f_val > 50000:
+                    self.state["freq_i2c"] = f"{f_val/1000:.1f}k"
+                elif ch_name == Config.CHANNEL_MAP['spi_clk'] and f_val > 50000:
+                    self.state["freq_spi"] = f"{f_val/1000:.1f}k"
+
+            elif ch_name == Config.CHANNEL_MAP['dht11']:
+                t_m = re.search(r'([0-9.]+)\s*([μµum]s|ms|ns|s)\b', raw, re.I)
+                if t_m:
+                    us = float(t_m.group(1)) * {"s": 1e6, "ms": 1e3, "us": 1.0, "ns": 1e-3}.get(t_m.group(2).lower().replace('μ','u').replace('µ','u'), 1.0)
+                    buf = self.state["timing_buf"].setdefault(ch_idx, [])
+                    if 12000 < us < 30000: # DHT11 Start bit detected
+                        if len(buf) >= 40:
+                            res = ProtocolDecoders.decode_dht11(buf)
+                            if res and (res != self.state["dht_last"] or (now_ns - self.state["dht_last_t"]) > 1e9):
+                                self.state["dht_last"], self.state["dht_last_t"] = res, now_ns
+                                self._write_row(ts, dht11=res)
+                        self.state["timing_buf"][ch_idx] = []
+                    elif us < 500000: buf.append(us)
+
+    def _handle_timeouts(self, now_ns, ts):
+        # SPI CS High timeout
+        if self.state["cs_active"] and (now_ns - self.state["spi_last_t"]) > 50e6:
+            self._write_row(ts, cs="HIGH")
+            self.state["cs_active"] = False
+        # UART buffer flush timeout
+        if self.state["uart_buf"] and (now_ns - self.state["uart_last_t"]) > 500e6:
+            self._write_row(ts, uart=self.state["uart_buf"].strip())
+            self.state["uart_buf"] = ""
+
+    def _write_row(self, ts, **kwargs):
+        """BƯỚC 5: Ghi dữ liệu đồng thời ra Console và CSV."""
+        cols = {"i2c_clk": "", "i2c": "", "uart": "", "pwm": "", "dht11": "", "spi_clk": "", "spi": "", "cs": ""}
+        cols.update(kwargs)
+        # Console output
+        print(f"[{ts:>9}] | {cols['i2c_clk']:<9} | {cols['i2c']:<14} | {cols['uart']:<24} | {cols['pwm']:<14} | {cols['dht11']:<19} | {cols['spi_clk']:<9} | {cols['spi']:<12} | {cols['cs']:<8}")
+        # CSV output
+        if self.writer:
+            self.writer.writerow([ts, cols["i2c_clk"], cols["i2c"], cols["uart"], cols["pwm"], cols["dht11"], cols["spi_clk"], cols["spi"], cols["cs"]])
+
+    def _print_table_header(self):
+        h = f"{'THOI GIAN':<11} | {'I2C CLK':<9} | {'I2C':<14} | {'UART':<24} | {'PWM':<14} | {'DHT11':<19} | {'SPI CLK':<9} | {'SPI':<12} | {'CS':<8}"
+        print("=" * len(h))
+        print(h)
+        print("-" * len(h))
+
+    def _final_flush(self):
+        if self.state["uart_buf"]:
+            self._write_row("END", uart=self.state["uart_buf"].strip())
+        print(f"\n [XONG] Da luu ket qua capture tai: {Config.CSV_PATH}")
+
+# ==============================================================================
+# SECTION 4: ENTRY POINT
+# ==============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="Autograder Logic Analyzer Tool")
-    parser.add_argument("--no-check", action="store_true",
-                        help="Bo qua kiem tra device (main_grader goi sau flash)")
-    parser.add_argument("--time", type=int, default=30,
-                        help="Thoi gian capture (giay), mac dinh: 30")
-    parser.add_argument("--lab", type=str, default=None,
-                        help="Ten lab de doc decoder tu JSON (vd: lab7-i2c)")
+    parser = argparse.ArgumentParser(description="Autograder Logic Analyzer Tool v2.0")
+    parser.add_argument("--lab", type=str, help="Ten lab (vd: lab7_dht11)")
+    parser.add_argument("--time", type=int, default=Config.DEFAULT_TIME, help="Thoi gian capture (s)")
+    parser.add_argument("--no-check", action="store_true", help="Bo qua kiem tra thiet bi")
     args = parser.parse_args()
 
+    # Khoi tao Runner
+    runner = SigrokRunner(lab_name=args.lab)
+
+    # BUOC 1: Check hardware
     if not args.no_check:
-        if not check_device():
+        if not runner.check_device():
             sys.exit(1)
 
-    if args.lab:
-        decoders = load_lab_decoders(args.lab)
-    else:
-        decoders = DEFAULT_DECODERS
-        print(" [INFO] Khong co --lab, su dung tat ca decoder mac dinh")
+    # BUOC 2: Load Lab config
+    runner.load_config()
 
-    run_capture(decoders, capture_time=args.time)
+    # BUOC 3, 4 & 5: Capture, Process & Save
+    runner.start(capture_time=args.time)
+    runner.wait()
 
 if __name__ == "__main__":
     main()

@@ -190,17 +190,29 @@ def run_autograder(args):
     # 5. Capture Logic Phase
     if not manual_mode or args.capture:
         log("--- PHASE 4: LOGIC CAPTURE ---")
-        if not sigrok.check_device(): return
+        # Khoi tao runner theo kieu huong doi tuong
+        runner = sigrok.SigrokRunner(lab_name=lab_name)
+        
+        # Kiem tra thiet bi (tu dong retry neu Pi vua boot)
+        if not runner.check_device(): 
+            log("LOI: Khong the tiep tuc vi thiet bi Logic Analyzer chua san sang.")
+            return
+            
         setup_hardware()
         gpio_control("HOLD")
+        
+        # Xoa ket qua cu
         if os.path.exists(CSV_PATH): os.remove(CSV_PATH)
 
-        decoders = sigrok.load_lab_decoders(lab_name)
-        sigrok.start_capture(decoders, capture_time=cap_time)
-        time.sleep(1.5)
-
+        # Cau hinh va bat dau Capture
+        runner.load_config()
+        runner.start(capture_time=cap_time)
+        
+        time.sleep(1.5) # Cho phep sigrok on dinh truoc khi chay MCU
         gpio_control("RELEASE")
-        sigrok.wait_capture()
+        
+        # Doi den khi capture xong
+        runner.wait()
 
     # 6. Grading Phase
     if not manual_mode or args.grade:

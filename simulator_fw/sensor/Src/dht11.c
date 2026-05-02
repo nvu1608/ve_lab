@@ -85,7 +85,7 @@ static void prv_pa0_ic_mode(void)
 {
     gpio_init(&s.dht_pin, GPIOA, GPIO_Pin_0, GPIO_Mode_IPU, GPIO_Speed_50MHz);
     s.ic_edge = 0;
-    
+
     /* Cấu hình lại TIM2 để bắt Falling edge */
     TIM_ICInitTypeDef ic;
     ic.TIM_Channel = TIM_Channel_1;
@@ -94,7 +94,7 @@ static void prv_pa0_ic_mode(void)
     ic.TIM_ICPrescaler = TIM_ICPSC_DIV1;
     ic.TIM_ICFilter = 0x0Fu;
     TIM_ICInit(TIM2, &ic);
-    
+
     TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 }
 
