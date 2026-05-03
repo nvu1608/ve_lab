@@ -117,26 +117,56 @@ class SigrokRunner:
         self.f_csv = None
         self.writer = None
 
-    def check_device(self, retries=3, delay=2):
-        """BƯỚC 1: Kiểm tra sự hiện diện của phần cứng (với cơ chế Retry)."""
+    def check_device(self, retries=5, delay=3):
+        """BƯỚC 1: Kiểm tra sự hiện diện của phần cứng (với cơ chế Retry và Wait)."""
         print("=" * 80)
+        
+        # Log version de debug neu can
+        try:
+            v = subprocess.run(["sigrok-cli", "--version"], capture_output=True, text=True)
+            print(f" [DEBUG] {v.stdout.splitlines()[0] if v.stdout else 'Sigrok version unknown'}")
+        except: pass
+
         for i in range(retries):
             print(f" [HE THONG] Dang quet Logic Analyzer (Lan {i+1}/{retries})...")
             try:
+                # Lan dau tien sau boot, lenh nay se trigger upload firmware fx2lafw
                 result = subprocess.run(
                     ["sigrok-cli", "-d", "fx2lafw", "--scan"],
                     capture_output=True, text=True, timeout=10
                 )
-                if "fx2lafw" in (result.stdout + result.stderr).lower():
-                    print(" OK: Thiet bi da san sang!")
-                    return True
-            except Exception: pass
+                output = (result.stdout + result.stderr).lower()
+                
+                if "fx2lafw" in output:
+                    print(" OK: Da tim thay thiet bi fx2lafw.")
+                    
+                    # Neu day la lan dau tim thay (co the vua upload firmware), 
+                    # can cho 2-3s de device re-enumerate tren USB bus.
+                    print(" [INFO] Dang doi thiet bi on dinh (USB re-enumeration)...")
+                    time.sleep(3)
+                    
+                    # Kiem tra lai lan nua de chac chan device da san sang
+                    check_again = subprocess.run(
+                        ["sigrok-cli", "-d", "fx2lafw", "--scan"],
+                        capture_output=True, text=True, timeout=10
+                    )
+                    if "fx2lafw" in (check_again.stdout + check_again.stderr).lower():
+                        print(" OK: Thiet bi da san sang cho Capture!")
+                        return True
+                    else:
+                        print(" [!] Thiet bi chua on dinh, dang thu lai...")
+            except Exception as e:
+                print(f" [DEBUG] Loi trong qua trinh quet: {e}")
 
             if i < retries - 1:
-                print(f" [!] Khong tim thay thiet bi, thu lai sau {delay}s...")
+                print(f" [!] Chua thay thiet bi, thu lai sau {delay}s...")
                 time.sleep(delay)
 
-        print(" LOI: Khong tim thay Logic Analyzer. Vui long kiem tra ket noi USB!")
+        print("\n [!] LOI: Khong the ket noi voi Logic Analyzer.")
+        print(" [GOI Y]:")
+        print("  1. Kiem tra cap USB noi voi Pi.")
+        print("  2. Kiem tra quyen truy cap (udev rules).")
+        print("  3. Thu rut ra cam lai Logic Analyzer.")
         return False
 
     def load_config(self):
@@ -209,10 +239,19 @@ class SigrokRunner:
         # Run process
         self.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
 
+        # Kiem tra nhanh xem process co bi crash ngay lap tuc khong (vd: thiet bi bien mat)
+        time.sleep(0.5)
+        if self.proc.poll() is not None:
+            _, stderr = self.proc.communicate()
+            print(f" [!] LOI: sigrok-cli thoat som voi ma loi {self.proc.returncode}")
+            print(f" [!] Chi tiet: {stderr.strip()}")
+            return False
+
         # Start monitor threads
         threading.Thread(target=self._drain_stderr, daemon=True).start()
         self.thread = threading.Thread(target=self._process_stdout, daemon=False)
         self.thread.start()
+        return True
 
     def wait(self):
         """Doi capture hoan tat."""
@@ -246,8 +285,12 @@ class SigrokRunner:
 
     def _drain_stderr(self):
         for line in iter(self.proc.stderr.readline, ""):
-            if "warning" not in line.lower() and "libusb" not in line.lower():
-                print(f" [SIGROK-ERR] {line.strip()}", flush=True)
+            line = line.strip()
+            if not line: continue
+            # Khong loc libusb nua de de debug tren Pi
+            if "warning" in line.lower() or "note" in line.lower():
+                continue
+            print(f" [SIGROK-ERR] {line}", flush=True)
 
     def _process_stdout(self):
         """BƯỚC 4: Logic xu ly tung dong du lieu tu sigrok-cli."""

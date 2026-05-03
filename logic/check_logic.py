@@ -204,7 +204,7 @@ def grade(lab_name, json_path, csv_path=None):
 
     with open(json_path, encoding="utf-8") as f:
         cfg = json.load(f)
-    
+
     # --- STEP 2: Signal Normalization ---
     # Làm sạch và chuẩn hóa dữ liệu từ CSV để đảm bảo tính chính xác của bộ máy tìm kiếm.
     print(f" [2/4] Normalizing captured signals...")
@@ -216,7 +216,7 @@ def grade(lab_name, json_path, csv_path=None):
 
     test_cases = cfg.get("test_cases", [])
     total_points = sum(tc["points"] for tc in test_cases)
-    
+
     # --- STEP 3: Logical Verification Engine ---
     # Chạy các thuật toán kiểm tra (Regex, I2C Protocol, Checksum...) cho từng Test Case.
     print(f" [3/4] Executing verification engine ({len(test_cases)} cases)...")
@@ -224,7 +224,7 @@ def grade(lab_name, json_path, csv_path=None):
         passed, score, detail = run_test_case(tc, rows)
         earned += score
         status = "PASS" if passed else "FAIL"
-        
+
         results.append({
             "id":     tc["id"],
             "name":   tc["name"],
@@ -233,7 +233,7 @@ def grade(lab_name, json_path, csv_path=None):
             "max":    tc["points"],
             "detail": detail,
         })
-        
+
         # Log kết quả trực quan cho từng Case để sinh viên dễ dàng debug
         print(f"\n [{status}] {tc['id']}: {tc['name']}")
         print(f"        Score : {score}/{tc['points']}")

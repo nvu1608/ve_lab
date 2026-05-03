@@ -206,7 +206,9 @@ def run_autograder(args):
 
         # Cau hinh va bat dau Capture
         runner.load_config()
-        runner.start(capture_time=cap_time)
+        if not runner.start(capture_time=cap_time):
+            log("LOI: Khong the khoi chay sigrok-cli. Vui long kiem tra lai thiet bi.")
+            return
         
         time.sleep(1.5) # Cho phep sigrok on dinh truoc khi chay MCU
         gpio_control("RELEASE")
