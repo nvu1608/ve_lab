@@ -67,13 +67,13 @@
     },
     {
       "id": "tc2",
-      "name": "Giao tiep I2C: Co lenh Write den DS1307",
+      "name": "Giao tiep I2C: Thiet lap thoi gian (Ghi vao thanh ghi 0x00)",
       "points": 10,
       "verify": {
         "source": "i2c",
-        "type": "regex",
-        "pattern": "W-Addr: 68",
-        "min_count": 1
+        "type": "i2c_write_data",
+        "addr": "68",
+        "reg": "00"
       }
     },
     {

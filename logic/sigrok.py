@@ -273,7 +273,7 @@ class SigrokRunner:
         decoder_str = ",".join(self.decoders)
         annots = []
         mapping = {
-            "i2c": "i2c=address-write:address-read:data-write:data-read",
+            "i2c": "i2c=address-write:address-read:data-write:data-read:ack-nack",
             "uart": "uart=tx-data",
             "pwm": "pwm=duty-cycle:period",
             "spi": "spi=mosi-data",
@@ -322,13 +322,29 @@ class SigrokRunner:
 
         # 1. I2C
         if "i2c" in low:
+            # 1. Neu la dia chi hoac du lieu
             m = re.search(r'(?:address|data)[- ](?:write|read):\s*([0-9a-fA-F]+)', raw, re.I)
             if m:
-                suffix = " (NACK)" if "nack" in low else ""
                 type_str = "Addr" if "address" in low else "Data"
                 dir_str = "W" if "write" in low else "R"
-                val = f"{dir_str}-{type_str}: {m.group(1).upper()}{suffix}"
+                val = f"{dir_str}-{type_str}: {m.group(1).upper()}"
+                
+                # Ghi tam vao state de doi ACK/NACK neu co
+                self.state["last_i2c_val"] = val
+                self.state["last_i2c_ts"] = ts
+                return
+
+            # 2. Neu la ACK/NACK (thuong xuat hien ngay sau line address/data)
+            if "nack" in low or "ack" in low:
+                val = self.state.get("last_i2c_val", "Unknown")
+                ts = self.state.get("last_i2c_ts", ts)
+                
+                if "nack" in low:
+                    val += " (NACK)"
+                
                 self._write_row(ts, i2c_clk=self.state["freq_i2c"], i2c=val)
+                self.state["last_i2c_val"] = None
+                return
 
         # 2. UART
         elif "uart" in low:

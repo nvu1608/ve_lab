@@ -192,15 +192,15 @@ def run_autograder(args):
         log("--- PHASE 4: LOGIC CAPTURE ---")
         # Khoi tao runner theo kieu huong doi tuong
         runner = sigrok.SigrokRunner(lab_name=lab_name)
-        
+
         # Kiem tra thiet bi (tu dong retry neu Pi vua boot)
-        if not runner.check_device(): 
+        if not runner.check_device():
             log("LOI: Khong the tiep tuc vi thiet bi Logic Analyzer chua san sang.")
             return
-            
+
         setup_hardware()
         gpio_control("HOLD")
-        
+
         # Xoa ket qua cu
         if os.path.exists(CSV_PATH): os.remove(CSV_PATH)
 
@@ -209,10 +209,10 @@ def run_autograder(args):
         if not runner.start(capture_time=cap_time):
             log("LOI: Khong the khoi chay sigrok-cli. Vui long kiem tra lai thiet bi.")
             return
-        
+
         time.sleep(1.5) # Cho phep sigrok on dinh truoc khi chay MCU
         gpio_control("RELEASE")
-        
+
         # Doi den khi capture xong
         runner.wait()
 

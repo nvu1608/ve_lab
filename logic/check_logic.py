@@ -121,6 +121,28 @@ def check_i2c_addr_ack(values, verify):
     return False, f"Khong thay dia chi 0x{addr} duoc ACK"
 
 
+def check_i2c_write_data(values, verify):
+    """
+    Kiem tra xem co lenh Write den dia chi 'addr' voi du lieu 'data' hay khong.
+    Dung de kiem tra viec ghi vao thanh ghi cu the (vd: Write 0x68 -> Data 0x00).
+    """
+    addr = verify["addr"].upper()
+    reg  = verify["reg"].upper()
+
+    # Tim cac index cua W-Addr tuong ung
+    found_reg = False
+    for i in range(len(values) - 1):
+        if f"W-Addr: {addr}" in values[i] and "NACK" not in values[i]:
+            # Kiem tra dong ngay sau do co phai la ghi vao thanh ghi muc tieu ko
+            if f"W-Data: {reg}" in values[i+1]:
+                found_reg = True
+                break
+
+    if found_reg:
+        return True, f"Da ghi vao thanh ghi 0x{reg} cua thiet bi 0x{addr}"
+    return False, f"Khong tim thay thao tac ghi vao thanh ghi 0x{reg} cua thiet bi 0x{addr}"
+
+
 def check_dht11_checksum(values, verify):
     min_count = verify.get("min_count", 3)
     valid     = 0
@@ -152,6 +174,7 @@ CHECK_FUNCTIONS = {
     "regex":             check_regex,
     "regex_value_range": check_regex_value_range,
     "i2c_addr_ack":      check_i2c_addr_ack,
+    "i2c_write_data":    check_i2c_write_data,
     "dht11_checksum":    check_dht11_checksum,
 }
 
