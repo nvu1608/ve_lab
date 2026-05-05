@@ -46,7 +46,7 @@ static void prv_sync_time_from_regs(ds1307_t *dev);
 static void prv_sync_regs_from_time(ds1307_t *dev);
 static void prv_publish_regs(ds1307_t *dev);
 
-static void prv_i2c_event_handler(void *ctx, const i2c_slave_event_t *evt);
+static void prv_i2c_event_handler(void *ctx, const i2c_slave_evt_t *evt);
 static uint8_t prv_i2c_tx_handler(void *ctx);
 static void prv_sim_task(void *argument);
 
