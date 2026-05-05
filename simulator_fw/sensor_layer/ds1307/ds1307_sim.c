@@ -116,7 +116,7 @@ void ds1307_sim_start(ds1307_t *dev, void *i2c_slave, uint32_t task_priority, ui
  * Private Helper Implementation
  * ============================================================ */
 
-static void prv_sim_task(void *argument) {  // logic simu ds1307 tick time 
+static void prv_sim_task(void *argument) {  // logic simu ds1307 tick time
     ds1307_t *dev = (ds1307_t *)argument;
     TickType_t last_tick = xTaskGetTickCount();
 
@@ -172,7 +172,7 @@ static void prv_sim_task(void *argument) {  // logic simu ds1307 tick time
     }
 }
 
-static void prv_i2c_event_handler(void *ctx, const i2c_slave_event_t *evt) {
+static void prv_i2c_event_handler(void *ctx, const i2c_slave_evt_t *evt) {
     ds1307_t *dev = (ds1307_t *)ctx;
     BaseType_t woken = pdFALSE;
 
