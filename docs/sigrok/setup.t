@@ -29,5 +29,49 @@ sigrok-cli -d fx2lafw \
   -P uart:baudrate=115200:tx=D2:format=hex \
   -A uart=tx-data
 
-# test tool sigrok.py 
+# test tool sigrok.py
 python3 /home/pi/ve_lab/logic/sigrok.py --lab lab5_i2c --time 10
+
+# show all annotation classes of i2c
+sigrok-cli --protocol-decoders i2c --show
+ID: i2c
+Name: I²C
+Long name: Inter-Integrated Circuit
+Description: Two-wire, multi-master, serial bus.
+License: gplv2+
+Possible decoder input IDs:
+- logic
+Possible decoder output IDs:
+- i2c
+Decoder tags:
+Annotation classes:
+- start: Start condition
+- repeat-start: Repeat start condition
+- stop: Stop condition
+- ack: ACK
+- nack: NACK
+- bit: Data/address bit
+- address-read: Address read
+- address-write: Address write
+- data-read: Data read
+- data-write: Data write
+- warnings: Human-readable warnings
+Annotation rows:
+- bits (Bits): bit
+- addr-data (Address/Data): start, repeat-start, stop, ack, nack, address-read, address-write, data-read, data-write
+- warnings (Warnings): warnings
+Binary classes:
+- address-read: Address read
+- address-write: Address write
+- data-read: Data read
+- data-write: Data write
+Required channels:
+- scl (SCL): Serial clock line
+- sda (SDA): Serial data line
+Optional channels:
+None.
+Options:
+- address_format: Displayed slave address format ('shifted', 'unshifted', default 'shifted')
+Documentation:
+I²C (Inter-Integrated Circuit) is a bidirectional, multi-master
+bus using two signals (SCL = serial clock line, SDA = serial data line).

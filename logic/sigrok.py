@@ -273,7 +273,7 @@ class SigrokRunner:
         decoder_str = ",".join(self.decoders)
         annots = []
         mapping = {
-            "i2c": "i2c=address-write:address-read:data-write:data-read:ack-nack",
+            "i2c": "i2c=address-write:address-read:data-write:data-read:ack:nack",
             "uart": "uart=tx-data",
             "pwm": "pwm=duty-cycle:period",
             "spi": "spi=mosi-data",
