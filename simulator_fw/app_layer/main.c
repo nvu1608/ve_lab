@@ -2,66 +2,53 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "app_config.h"
+#include "app_cfg.h"
+#include "driver_nvic.h"
 
 #if (ENABLE_DS1307 == 1)
-#include "ds1307.h"
+#include "ds1307_project.h"
 #endif
 
 #if (ENABLE_DHT11 == 1)
-#include "dht11.h"
+#include "dht11_project.h"
 #endif
 
 /* ============================================================
- * ENTRY POINT
+ * Main Entry Point
  * ============================================================ */
 int main(void)
 {
-    /* 1. Cau hinh he thong co ban */
+    /* 1. System low-level initialization */
     SystemInit();
     SystemCoreClockUpdate();
-    
-    /* Dam bao NVIC Priority Group 4 cho FreeRTOS */
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+    nvic_set_priority_group(NVIC_PriorityGroup_4);
 
-    /* 2. Khoi tao cac Sensor duoc enable */
+    /* 2. Initialize Projects/Sensors */
 #if (ENABLE_DS1307 == 1)
-    ds1307_sim_init();
+    ds1307_project_init();
 #endif
 
 #if (ENABLE_DHT11 == 1)
-    dht11_sim_init();
+    dht11_project_init();
 #endif
 
-    /* 3. Chay RTOS Scheduler */
+    /* 3. Start FreeRTOS Scheduler */
     vTaskStartScheduler();
 
-    /* 4. Fallback neu thieu RAM tao Idle task */
-    while (1)
-    {
-    }
+    /* Should never reach here */
+    while (1);
 }
 
 /* ============================================================
  * FreeRTOS Hooks
  * ============================================================ */
-
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
-    (void)xTask;
-    (void)pcTaskName;
+    (void)xTask; (void)pcTaskName;
     while (1);
 }
 
 void vApplicationMallocFailedHook(void)
 {
     while (1);
-}
-
-void vApplicationIdleHook(void)
-{
-}
-
-void vApplicationTickHook(void)
-{
 }

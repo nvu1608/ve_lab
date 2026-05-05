@@ -6,7 +6,7 @@
  * ==================================================================== */
 
 /**
- * @brief Phát sự kiện lên tầng trên thông qua callback
+ * @brief Emit event to upper layer via callback
  */
 static void prv_i2c_slave_emit_event(i2c_slave_t *dev,
                                      i2c_slave_event_t type,
@@ -27,7 +27,7 @@ static void prv_i2c_slave_emit_event(i2c_slave_t *dev,
 }
 
 /**
- * @brief Lấy byte dữ liệu để gửi đi thông qua callback
+ * @brief Get byte for transmission via callback
  */
 static uint8_t prv_i2c_slave_get_tx_byte(i2c_slave_t *dev)
 {
@@ -84,7 +84,7 @@ driver_status_t i2c_slave_start(i2c_slave_t *dev)
     I2C_Init(dev->instance, &i2c_init);
     I2C_AcknowledgeConfig(dev->instance, ENABLE);   
 
-    /* Bật interrupt sự kiện, buffer và lỗi */
+    /* Enable event, buffer and error interrupts */
     I2C_ITConfig(dev->instance, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
 
     I2C_Cmd(dev->instance, ENABLE);
@@ -156,33 +156,26 @@ void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
 
         if ((sr2 & I2C_SR2_TRA) != 0u)
         {
-            /* Master muốn READ data từ Slave */
+            /* Master wants to READ from Slave */
             uint8_t tx_data;
-
             dev->state = I2C_SLAVE_STATE_TX;
-
             prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_READ_START, 0u, 0u);
-
             tx_data = prv_i2c_slave_get_tx_byte(dev);
             i2c->DR = tx_data;
-
             prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
         }
         else
         {
-            /* Master muốn WRITE data vào Slave */
+            /* Master wants to WRITE to Slave */
             dev->state = I2C_SLAVE_STATE_RX;
-
             prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_WRITE_START, 0u, 0u);
         }
-
         return;
     }
 
     /* STOPF: Stop detection (Slave) */
     if ((sr1 & I2C_SR1_STOPF) != 0u)
     {
-        /* Clear STOPF bằng cách đọc SR1 rồi ghi vào CR1 */
         (void)i2c->SR1;
         i2c->CR1 |= I2C_CR1_PE;
 
@@ -199,14 +192,11 @@ void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
     if ((sr1 & I2C_SR1_RXNE) != 0u)
     {
         uint8_t rx_data = (uint8_t)i2c->DR;
-
         if (dev->state != I2C_SLAVE_STATE_RX)
         {
             dev->state = I2C_SLAVE_STATE_RX;
         }
-
         prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
-
         return;
     }
 
@@ -214,17 +204,13 @@ void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
     if ((sr1 & I2C_SR1_TXE) != 0u)
     {
         uint8_t tx_data;
-
         if (dev->state != I2C_SLAVE_STATE_TX)
         {
             dev->state = I2C_SLAVE_STATE_TX;
         }
-
         tx_data = prv_i2c_slave_get_tx_byte(dev);
         i2c->DR = tx_data;
-
         prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
-
         return;
     }
 
@@ -235,13 +221,11 @@ void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
         {
             uint8_t tx_data = prv_i2c_slave_get_tx_byte(dev);
             i2c->DR = tx_data;
-
             prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
         }
         else if (dev->state == I2C_SLAVE_STATE_RX)
         {
             uint8_t rx_data = (uint8_t)i2c->DR;
-            
             prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
         }
         return;
@@ -262,10 +246,9 @@ void i2c_slave_er_irq_handler(i2c_slave_t *dev)
     if ((i2c->SR1 & I2C_SR1_AF) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_AF;
-
         if (dev->state == I2C_SLAVE_STATE_TX)
         {
-            /* Master gửi NACK để báo kết thúc phiên READ */
+            /* Master sends NACK to indicate end of READ */
             prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_READ_DONE, 0u, 0u);
             dev->state = I2C_SLAVE_STATE_IDLE;
         }

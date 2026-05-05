@@ -10,10 +10,6 @@
 extern "C" {
 #endif
 
-/* ================================================================
- *  ENUMS
- * ================================================================ */
-
 typedef enum
 {
     TIMER_CH1 = 0,
@@ -48,28 +44,8 @@ typedef enum
     TIMER_OC_MODE_PWM2     = TIM_OCMode_PWM2,
 } timer_oc_mode_t;
 
-/* ================================================================
- *  CALLBACKS
- * ================================================================ */
-
-/**
- * @brief Callback cho sự kiện Timer (Update hoặc Capture)
- * @param ctx   Context người dùng truyền vào
- * @param ch    Channel gây ra ngắt
- * @param val   Giá trị CNT (khi Update) hoặc CCR (khi Capture)
- */
 typedef void (*timer_callback_t)(void *ctx, timer_channel_t ch, uint32_t val);
-
-/**
- * @brief Callback cho sự kiện DMA hoàn tất
- * @param ctx   Context người dùng truyền vào
- * @param ch    Channel liên quan
- */
 typedef void (*timer_dma_callback_t)(void *ctx, timer_channel_t ch);
-
-/* ================================================================
- *  CONFIG STRUCTS
- * ================================================================ */
 
 typedef struct
 {
@@ -123,84 +99,37 @@ typedef struct
     void *dma_ctx;
 } timer_oc_cfg_t;
 
-/* ================================================================
- *  OBJECT STRUCT
- * ================================================================ */
-
+/**
+ * @brief Timer Object Structure
+ */
 typedef struct
 {
     TIM_TypeDef *instance;
     
     struct {
         timer_mode_t mode;
-        
         timer_callback_t callback;
         void *ctx;
-        
         timer_dma_callback_t dma_callback;
         void *dma_ctx;
-        
         DMA_Channel_TypeDef *dma_channel;
     } channels[4];
 } timer_t;
 
-/* ================================================================
- *  API
- * ================================================================ */
-
-/**
- * @brief Khởi tạo object Timer
- */
+/* Public API */
 driver_status_t timer_init(timer_t *dev, TIM_TypeDef *instance);
-
-/**
- * @brief Cấu hình Time Base (thường dùng cho định thời ngắt)
- */
 driver_status_t timer_base_init(timer_t *dev, const timer_base_cfg_t *cfg);
-
-/**
- * @brief Cấu hình PWM output
- */
 driver_status_t timer_pwm_init(timer_t *dev, timer_channel_t ch, const timer_pwm_cfg_t *cfg);
-
-/**
- * @brief Cấu hình Input Capture
- */
 driver_status_t timer_ic_init(timer_t *dev, timer_channel_t ch, const timer_ic_cfg_t *cfg);
-
-/**
- * @brief Cấu hình Output Compare
- */
 driver_status_t timer_oc_init(timer_t *dev, timer_channel_t ch, const timer_oc_cfg_t *cfg);
 
-/**
- * @brief Bắt đầu Timer (cho một channel cụ thể hoặc toàn bộ timer nếu là BASE)
- */
 driver_status_t timer_start(timer_t *dev, timer_channel_t ch);
-
-/**
- * @brief Dừng Timer
- */
 driver_status_t timer_stop(timer_t *dev, timer_channel_t ch);
 
-/**
- * @brief Đọc giá trị CNT hoặc CCR
- */
 driver_status_t timer_read(timer_t *dev, timer_channel_t ch, uint32_t *val);
-
-/**
- * @brief Ghi giá trị CCR (thay đổi duty PWM / OC)
- */
 driver_status_t timer_write(timer_t *dev, timer_channel_t ch, uint16_t val);
 
-/**
- * @brief Handler xử lý ngắt Timer
- */
 void timer_irq_handler(timer_t *dev);
-
-/**
- * @brief Handler xử lý ngắt DMA liên quan đến Timer
- */
 void timer_dma_irq_handler(timer_t *dev, timer_channel_t ch);
 
 #ifdef __cplusplus

@@ -9,7 +9,7 @@ typedef struct
 {
     DMA_Channel_TypeDef *ch;
     uint32_t flag_tc; /* Transfer Complete flag */
-    uint32_t flag_gl; /* Global flag để clear   */
+    uint32_t flag_gl; /* Global flag to clear */
     IRQn_Type irqn;
 } prv_dma_map_t;
 
@@ -40,7 +40,7 @@ static const prv_dma_map_t dma_map[4][4] = {
         {DMA1_Channel1, DMA1_FLAG_TC1, DMA1_FLAG_GL1, DMA1_Channel1_IRQn},
         {DMA1_Channel4, DMA1_FLAG_TC4, DMA1_FLAG_GL4, DMA1_Channel4_IRQn},
         {DMA1_Channel5, DMA1_FLAG_TC5, DMA1_FLAG_GL5, DMA1_Channel5_IRQn},
-        {0, 0, 0, 0}, /* TIM4_CH4 no DMA */
+        {NULL, 0, 0, (IRQn_Type)0}, /* TIM4_CH4 no DMA */
     },
 };
 
@@ -111,10 +111,16 @@ static void prv_oc_init(TIM_TypeDef *instance, timer_channel_t ch, TIM_OCInitTyp
 static driver_status_t prv_dma_open(timer_t *dev, timer_channel_t ch, uint16_t *buf, uint16_t len, uint32_t dir)
 {
     int tidx = prv_get_tim_idx(dev->instance);
+    if (tidx < 0) return DRIVER_ERR_INVALID_ARG;
+    
     const prv_dma_map_t *m = &dma_map[tidx][ch];
 
     if (!m->ch) return DRIVER_ERR_NOT_SUPPORTED;
 
+    /* Note: RCC enable for DMA should ideally be in project layer, 
+       but for DMA common resource it's often kept in driver for simplicity. 
+       Following standard strictly, it should be external. 
+       We'll keep it here for now as DMA1 is a singleton service. */
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
     DMA_InitTypeDef dma;
@@ -166,7 +172,6 @@ driver_status_t timer_base_init(timer_t *dev, const timer_base_cfg_t *cfg)
     tb.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(dev->instance, &tb);
 
-    /* BASE mode thường gán vào channel 0 để quản lý callback */
     dev->channels[0].mode = TIMER_MODE_BASE;
     dev->channels[0].callback = cfg->callback;
     dev->channels[0].ctx = cfg->ctx;
@@ -280,7 +285,6 @@ driver_status_t timer_start(timer_t *dev, timer_channel_t ch)
 {
     if (!dev) return DRIVER_ERR_INVALID_ARG;
     
-    /* Cấu hình NVIC */
     if (dev->channels[ch].mode == TIMER_MODE_BASE) {
         NVIC_EnableIRQ(prv_get_tim_up_irqn(dev->instance));
     } else {
@@ -301,7 +305,6 @@ driver_status_t timer_stop(timer_t *dev, timer_channel_t ch)
     
     TIM_ITConfig(dev->instance, prv_get_it_flag(ch) | TIM_IT_Update, DISABLE);
     
-    /* Kiểm tra xem còn channel nào dùng không trước khi dừng hẳn */
     uint8_t still_used = 0;
     for (int i = 0; i < 4; i++) {
         if (i != (int)ch && dev->channels[i].mode != TIMER_MODE_NONE) {
@@ -354,7 +357,6 @@ void timer_irq_handler(timer_t *dev)
 {
     if (!dev) return;
 
-    /* Update Interrupt (Base) */
     if (TIM_GetITStatus(dev->instance, TIM_IT_Update) == SET) {
         TIM_ClearITPendingBit(dev->instance, TIM_IT_Update);
         if (dev->channels[0].mode == TIMER_MODE_BASE && dev->channels[0].callback) {
@@ -362,7 +364,6 @@ void timer_irq_handler(timer_t *dev)
         }
     }
 
-    /* Capture/Compare Interrupts */
     for (int i = 0; i < 4; i++) {
         uint16_t flag = prv_get_it_flag((timer_channel_t)i);
         if (TIM_GetITStatus(dev->instance, flag) == SET) {
@@ -381,6 +382,7 @@ void timer_dma_irq_handler(timer_t *dev, timer_channel_t ch)
     if (!dev) return;
     
     int tidx = prv_get_tim_idx(dev->instance);
+    if (tidx < 0) return;
     const prv_dma_map_t *m = &dma_map[tidx][ch];
     
     if (DMA_GetFlagStatus(m->flag_tc) == SET) {

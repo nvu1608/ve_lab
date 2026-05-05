@@ -6,6 +6,9 @@ extern "C"
 {
 #endif
 
+/**
+ * @brief Common status return for all drivers
+ */
 typedef enum
 {
     DRIVER_OK = 0,
@@ -20,4 +23,4 @@ typedef enum
 }
 #endif
 
-#endif
+#endif /* DRIVER_COMMON_H */
