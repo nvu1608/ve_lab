@@ -8,45 +8,10 @@
   *          This file provides template for all exceptions handler and
   *          peripherals interrupt service routine.
   ******************************************************************************
-  * @attention
-  *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
-  *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
-  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
-#include "FreeRTOS.h"
-#include "driver_timer.h"
-#include "driver_i2c_slave.h"
-#include "app_config.h"
-
-#if (ENABLE_DHT11 == 1)
-extern timer_t *g_dht11_tim_tx;
-extern timer_t *g_dht11_tim_rx;
-#endif
-
-#if (ENABLE_DS1307 == 1)
-extern i2c_slave_t g_app_ds1307_i2c;
-#endif
-
-/** @addtogroup STM32F10x_StdPeriph_Template
-  * @{
-  */
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
@@ -54,8 +19,6 @@ extern i2c_slave_t g_app_ds1307_i2c;
 
 /**
   * @brief  This function handles NMI exception.
-  * @param  None
-  * @retval None
   */
 void NMI_Handler(void)
 {
@@ -63,8 +26,6 @@ void NMI_Handler(void)
 
 /**
   * @brief  This function handles Hard Fault exception.
-  * @param  None
-  * @retval None
   */
 void HardFault_Handler(void)
 {
@@ -76,8 +37,6 @@ void HardFault_Handler(void)
 
 /**
   * @brief  This function handles Memory Manage exception.
-  * @param  None
-  * @retval None
   */
 void MemManage_Handler(void)
 {
@@ -89,8 +48,6 @@ void MemManage_Handler(void)
 
 /**
   * @brief  This function handles Bus Fault exception.
-  * @param  None
-  * @retval None
   */
 void BusFault_Handler(void)
 {
@@ -102,8 +59,6 @@ void BusFault_Handler(void)
 
 /**
   * @brief  This function handles Usage Fault exception.
-  * @param  None
-  * @retval None
   */
 void UsageFault_Handler(void)
 {
@@ -115,8 +70,6 @@ void UsageFault_Handler(void)
 
 /**
   * @brief  This function handles SVCall exception.
-  * @param  None
-  * @retval None
   */
 #ifndef vPortSVCHandler
 void SVC_Handler(void)
@@ -126,8 +79,6 @@ void SVC_Handler(void)
 
 /**
   * @brief  This function handles Debug Monitor exception.
-  * @param  None
-  * @retval None
   */
 void DebugMon_Handler(void)
 {
@@ -135,8 +86,6 @@ void DebugMon_Handler(void)
 
 /**
   * @brief  This function handles PendSVC exception.
-  * @param  None
-  * @retval None
   */
 #ifndef xPortPendSVHandler
 void PendSV_Handler(void)
@@ -146,8 +95,6 @@ void PendSV_Handler(void)
 
 /**
   * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
   */
 #ifndef xPortSysTickHandler
 void SysTick_Handler(void)
@@ -157,47 +104,5 @@ void SysTick_Handler(void)
 
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
-/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
-/*  available peripheral interrupt handler's name please refer to the startup */
-/*  file (startup_stm32f10x_xx.s).                                            */
-/******************************************************************************/
-
-/**
-  * @brief  This function handles PPP interrupt request.
-  * @param  None
-  * @retval None
-  */
-void TIM1_CC_IRQHandler(void)
-{
-#if (ENABLE_DHT11 == 1)
-    timer_irq_handler(g_dht11_tim_tx);
-#endif
-}
-
-void TIM2_IRQHandler(void)
-{
-#if (ENABLE_DHT11 == 1)
-    timer_irq_handler(g_dht11_tim_rx);
-#endif
-}
-
-void I2C1_EV_IRQHandler(void)
-{
-#if (ENABLE_DS1307 == 1)
-    i2c_slave_ev_irq_handler(&g_app_ds1307_i2c);
-#endif
-}
-
-void I2C1_ER_IRQHandler(void)
-{
-#if (ENABLE_DS1307 == 1)
-    i2c_slave_er_irq_handler(&g_app_ds1307_i2c);
-#endif
-}
-
-/**
-  * @}
-  */
-
-
+/*  Peripheral interrupt handlers are moved to project_layer files.           */
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

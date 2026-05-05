@@ -118,7 +118,6 @@ void ds1307_sim_start(ds1307_t *dev, void *i2c_slave, uint32_t task_priority, ui
 
 static void prv_sim_task(void *argument) {  // logic simu ds1307 tick time
     ds1307_t *dev = (ds1307_t *)argument;
-    TickType_t last_tick = xTaskGetTickCount();
 
     while (1) {
         /* Wait for either 1s timeout or an I2C write event */
