@@ -42,9 +42,10 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-../simulator_fw/app/main.c \
-$(wildcard ../simulator_fw/driver/Src/*.c) \
-$(wildcard ../simulator_fw/sensor/Src/*.c) \
+../simulator_fw/app_layer/main.c \
+$(wildcard ../simulator_fw/driver_layer/Src/*.c) \
+$(wildcard ../simulator_fw/sensor_layer/*/*.c) \
+$(wildcard ../simulator_fw/project_layer/*/*.c) \
 Src/syscalls.c \
 Src/stm32f10x_it.c \
 FreeRTOS/source/tasks.c \
@@ -137,9 +138,12 @@ AS_INCLUDES =
 # C includes
 C_INCLUDES =  \
 -IInc \
--I../simulator_fw/app \
--I../simulator_fw/driver/Inc \
--I../simulator_fw/sensor/Inc \
+-I../simulator_fw/app_layer \
+-I../simulator_fw/driver_layer/Inc \
+-I../simulator_fw/sensor_layer/ds1307 \
+-I../simulator_fw/sensor_layer/dht11 \
+-I../simulator_fw/project_layer/ds1307_project \
+-I../simulator_fw/project_layer/dht11_project \
 -IDrivers/STM32F10x_StdPeriph_Driver/inc \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
 -IDrivers/CMSIS/Include \

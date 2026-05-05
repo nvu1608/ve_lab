@@ -116,7 +116,7 @@ void ds1307_sim_start(ds1307_t *dev, void *i2c_slave, uint32_t task_priority, ui
  * Private Helper Implementation
  * ============================================================ */
 
-static void prv_sim_task(void *argument) {
+static void prv_sim_task(void *argument) {  // logic simu ds1307 tick time 
     ds1307_t *dev = (ds1307_t *)argument;
     TickType_t last_tick = xTaskGetTickCount();
 
@@ -130,11 +130,11 @@ static void prv_sim_task(void *argument) {
                     dev->regs[reg] = dev->write_buf[i];
                     reg = (uint8_t)((reg + 1) % DS1307_REG_COUNT);
                 }
-                
+
                 if (dev->write_start_reg <= DS1307_REG_YEAR) {
                     prv_sync_time_from_regs(dev);
                 }
-                
+
                 dev->write_pending = 0;
                 dev->write_len = 0;
                 prv_publish_regs(dev);
@@ -181,7 +181,7 @@ static void prv_i2c_event_handler(void *ctx, const i2c_slave_event_t *evt) {
             dev->write_len = 0;
             dev->write_pending = 0;
             break;
-            
+
         case I2C_SLAVE_EVT_BYTE_RECEIVED:
             if (dev->write_pending == 0 && dev->write_len == 0) {
                 dev->current_reg = evt->data % DS1307_REG_COUNT;
@@ -208,7 +208,7 @@ static void prv_i2c_event_handler(void *ctx, const i2c_slave_event_t *evt) {
         case I2C_SLAVE_EVT_READ_DONE:
             dev->tx_active = 0;
             break;
-            
+
         default: break;
     }
     portYIELD_FROM_ISR(woken);
