@@ -5,13 +5,12 @@
   * @version V3.5.0
   * @date    08-April-2011
   * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and
-  *          peripherals interrupt service routine.
   ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
+#include "FreeRTOS.h"
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
