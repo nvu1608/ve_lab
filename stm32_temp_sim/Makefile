@@ -40,12 +40,13 @@ BUILD_DIR = build
 ######################################
 # source
 ######################################
+
 # C sources
 C_SOURCES =  \
 ../simulator_fw/app_layer/main.c \
 $(wildcard ../simulator_fw/driver_layer/Src/*.c) \
 $(wildcard ../simulator_fw/sensor_layer/*/*.c) \
-$(wildcard ../simulator_fw/project_layer/*/*.c) \
+$(wildcard ../simulator_fw/sim_layer/*/*.c) \
 Src/syscalls.c \
 Src/stm32f10x_it.c \
 FreeRTOS/source/tasks.c \
@@ -89,7 +90,9 @@ startup_stm32f103xb.s
 # binaries
 #######################################
 PREFIX = arm-none-eabi-
-GCC_PATH = /home/pi/ve_lab/arm_gcc/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/bin
+# GCC_PATH = /home/pi/ve_lab/toolchain/arm-gnu-toolchain-15.2.rel1-aarch64-arm-none-eabi/bin
+GCC_PATH = /home/uynv/VELab_Hardware/ve_lab/toolchain/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin
+
 GCC_PATH := $(patsubst %/,%,$(GCC_PATH))
 
 ifneq ($(GCC_PATH),)
@@ -140,10 +143,16 @@ C_INCLUDES =  \
 -IInc \
 -I../simulator_fw/app_layer \
 -I../simulator_fw/driver_layer/Inc \
--I../simulator_fw/sensor_layer/ds1307 \
+-I../simulator_fw/sensor_layer/74hc595 \
 -I../simulator_fw/sensor_layer/dht11 \
--I../simulator_fw/project_layer/ds1307_project \
--I../simulator_fw/project_layer/dht11_project \
+-I../simulator_fw/sensor_layer/dht22 \
+-I../simulator_fw/sensor_layer/ds1307 \
+-I../simulator_fw/sensor_layer/mq2 \
+-I../simulator_fw/sim_layer/sim_74hc595 \
+-I../simulator_fw/sim_layer/sim_dht11 \
+-I../simulator_fw/sim_layer/sim_dht22 \
+-I../simulator_fw/sim_layer/sim_ds1307 \
+-I../simulator_fw/sim_layer/sim_mq2 \
 -IDrivers/STM32F10x_StdPeriph_Driver/inc \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
 -IDrivers/CMSIS/Include \

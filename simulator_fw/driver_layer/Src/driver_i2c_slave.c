@@ -1,53 +1,30 @@
+/**
+ * @file    driver_i2c_slave.c
+ * @brief   I2C slave driver implementation.
+ * @details Implements interrupt-based I2C slave communication APIs.
+ */
+
+/* Includes ----------------------------------------------------------------*/
 #include "driver_i2c_slave.h"
+
 #include <string.h>
 
-/* ====================================================================
- * PRIVATE FUNCTIONS
- * ==================================================================== */
+/* Private macros ----------------------------------------------------------*/
+
+/* Private function prototypes ---------------------------------------------*/
+static void    prv_emit_event(i2c_slave_t *dev, i2c_slave_event_t type, uint8_t data, uint32_t error);
+static uint8_t prv_get_tx_byte(i2c_slave_t *dev);
+
+/* Public functions --------------------------------------------------------*/
 
 /**
- * @brief Emit event to upper layer via callback
+ * @brief Setup I2C slave driver object.
  */
-static void prv_i2c_slave_emit_event(i2c_slave_t *dev,
-                                     i2c_slave_event_t type,
-                                     uint8_t data,
-                                     uint32_t error)
-{
-    if ((dev == NULL) || (dev->event_cb == NULL))
-    {
-        return;
-    }
-
-    i2c_slave_evt_t evt;
-    evt.type = type;
-    evt.data = data;
-    evt.error = error;
-
-    dev->event_cb(dev->event_ctx, &evt);
-}
-
-/**
- * @brief Get byte for transmission via callback
- */
-static uint8_t prv_i2c_slave_get_tx_byte(i2c_slave_t *dev)
-{
-    if ((dev == NULL) || (dev->tx_byte_cb == NULL))
-    {
-        return 0xFFu;
-    }
-
-    return dev->tx_byte_cb(dev->tx_byte_ctx);
-}
-
-/* ====================================================================
- * PUBLIC API
- * ==================================================================== */
-
-driver_status_t i2c_slave_init(i2c_slave_t *dev,
-                               I2C_TypeDef *instance,
-                               uint16_t own_address,
-                               uint32_t clock_speed,
-                               uint16_t duty_cycle)
+driver_status_t i2c_slave_setup(i2c_slave_t *dev,
+                                I2C_TypeDef *instance,
+                                uint16_t own_address,
+                                uint32_t clock_speed,
+                                uint16_t duty_cycle)
 {
     if (dev == NULL)
     {
@@ -65,7 +42,10 @@ driver_status_t i2c_slave_init(i2c_slave_t *dev,
     return DRIVER_OK;
 }
 
-driver_status_t i2c_slave_start(i2c_slave_t *dev)
+/**
+ * @brief Enable I2C slave peripheral.
+ */
+driver_status_t i2c_slave_enable(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
@@ -82,9 +62,9 @@ driver_status_t i2c_slave_start(i2c_slave_t *dev)
     i2c_init.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
 
     I2C_Init(dev->instance, &i2c_init);
-    I2C_AcknowledgeConfig(dev->instance, ENABLE);   
+    I2C_AcknowledgeConfig(dev->instance, ENABLE);
 
-    /* Enable event, buffer and error interrupts */
+    /* Enable event, buffer, and error interrupts. */
     I2C_ITConfig(dev->instance, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
 
     I2C_Cmd(dev->instance, ENABLE);
@@ -94,7 +74,10 @@ driver_status_t i2c_slave_start(i2c_slave_t *dev)
     return DRIVER_OK;
 }
 
-driver_status_t i2c_slave_stop(i2c_slave_t *dev)
+/**
+ * @brief Disable I2C slave peripheral.
+ */
+driver_status_t i2c_slave_disable(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
@@ -109,9 +92,12 @@ driver_status_t i2c_slave_stop(i2c_slave_t *dev)
     return DRIVER_OK;
 }
 
-driver_status_t i2c_slave_set_event_callback(i2c_slave_t *dev,
-                                             i2c_slave_event_cb_t cb,
-                                             void *ctx)
+/**
+ * @brief Register I2C slave event callback.
+ */
+driver_status_t i2c_slave_register_event(i2c_slave_t *dev,
+                                         i2c_slave_event_cb cb,
+                                         void *ctx)
 {
     if (dev == NULL)
     {
@@ -124,22 +110,28 @@ driver_status_t i2c_slave_set_event_callback(i2c_slave_t *dev,
     return DRIVER_OK;
 }
 
-driver_status_t i2c_slave_set_tx_byte_callback(i2c_slave_t *dev,
-                                               i2c_slave_tx_byte_cb_t cb,
-                                               void *ctx)
+/**
+ * @brief Register I2C slave TX byte callback.
+ */
+driver_status_t i2c_slave_register_tx(i2c_slave_t *dev,
+                                      i2c_slave_tx_cb cb,
+                                      void *ctx)
 {
     if (dev == NULL)
     {
         return DRIVER_ERR_INVALID_ARG;
     }
 
-    dev->tx_byte_cb = cb;
-    dev->tx_byte_ctx = ctx;
+    dev->tx_cb = cb;
+    dev->tx_ctx = ctx;
 
     return DRIVER_OK;
 }
 
-void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
+/**
+ * @brief Handle I2C slave event interrupt.
+ */
+void i2c_slave_handle_ev(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
@@ -149,31 +141,33 @@ void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
     I2C_TypeDef *i2c = dev->instance;
     uint16_t sr1 = i2c->SR1;
 
-    /* ADDR: Address matched (Slave) */
+    /* ADDR: address matched. Read SR1 then SR2 to clear ADDR flag. */
     if ((sr1 & I2C_SR1_ADDR) != 0u)
     {
         uint16_t sr2 = i2c->SR2;
 
         if ((sr2 & I2C_SR2_TRA) != 0u)
         {
-            /* Master wants to READ from Slave */
             uint8_t tx_data;
+
             dev->state = I2C_SLAVE_STATE_TX;
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_READ_START, 0u, 0u);
-            tx_data = prv_i2c_slave_get_tx_byte(dev);
+            prv_emit_event(dev, I2C_SLAVE_EVT_READ_START, 0u, 0u);
+
+            tx_data = prv_get_tx_byte(dev);
             i2c->DR = tx_data;
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
+
+            prv_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
         }
         else
         {
-            /* Master wants to WRITE to Slave */
             dev->state = I2C_SLAVE_STATE_RX;
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_WRITE_START, 0u, 0u);
+            prv_emit_event(dev, I2C_SLAVE_EVT_WRITE_START, 0u, 0u);
         }
+
         return;
     }
 
-    /* STOPF: Stop detection (Slave) */
+    /* STOPF: stop detected. Read SR1 then write CR1 to clear STOPF flag. */
     if ((sr1 & I2C_SR1_STOPF) != 0u)
     {
         (void)i2c->SR1;
@@ -181,58 +175,73 @@ void i2c_slave_ev_irq_handler(i2c_slave_t *dev)
 
         if (dev->state == I2C_SLAVE_STATE_RX)
         {
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_WRITE_DONE, 0u, 0u);
+            prv_emit_event(dev, I2C_SLAVE_EVT_WRITE_DONE, 0u, 0u);
         }
 
         dev->state = I2C_SLAVE_STATE_IDLE;
+
         return;
     }
 
-    /* RXNE: Receive buffer not empty */
+    /* RXNE: receive buffer not empty. */
     if ((sr1 & I2C_SR1_RXNE) != 0u)
     {
         uint8_t rx_data = (uint8_t)i2c->DR;
+
         if (dev->state != I2C_SLAVE_STATE_RX)
         {
             dev->state = I2C_SLAVE_STATE_RX;
         }
-        prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
+
+        prv_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
+
         return;
     }
 
-    /* TXE: Transmit buffer empty */
+    /* TXE: transmit buffer empty. */
     if ((sr1 & I2C_SR1_TXE) != 0u)
     {
         uint8_t tx_data;
+
         if (dev->state != I2C_SLAVE_STATE_TX)
         {
             dev->state = I2C_SLAVE_STATE_TX;
         }
-        tx_data = prv_i2c_slave_get_tx_byte(dev);
+
+        tx_data = prv_get_tx_byte(dev);
         i2c->DR = tx_data;
-        prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
+
+        prv_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
+
         return;
     }
 
-    /* BTF: Byte transfer finished */
+    /* BTF: byte transfer finished. */
     if ((sr1 & I2C_SR1_BTF) != 0u)
     {
         if (dev->state == I2C_SLAVE_STATE_TX)
         {
-            uint8_t tx_data = prv_i2c_slave_get_tx_byte(dev);
+            uint8_t tx_data = prv_get_tx_byte(dev);
+
             i2c->DR = tx_data;
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
+
+            prv_emit_event(dev, I2C_SLAVE_EVT_BYTE_SENT, tx_data, 0u);
         }
         else if (dev->state == I2C_SLAVE_STATE_RX)
         {
             uint8_t rx_data = (uint8_t)i2c->DR;
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
+
+            prv_emit_event(dev, I2C_SLAVE_EVT_BYTE_RECEIVED, rx_data, 0u);
         }
+
         return;
     }
 }
 
-void i2c_slave_er_irq_handler(i2c_slave_t *dev)
+/**
+ * @brief Handle I2C slave error interrupt.
+ */
+void i2c_slave_handle_er(i2c_slave_t *dev)
 {
     if ((dev == NULL) || (dev->instance == NULL))
     {
@@ -242,14 +251,15 @@ void i2c_slave_er_irq_handler(i2c_slave_t *dev)
     I2C_TypeDef *i2c = dev->instance;
     uint32_t error = 0u;
 
-    /* AF: Acknowledge failure */
+    /* AF: acknowledge failure. */
     if ((i2c->SR1 & I2C_SR1_AF) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_AF;
+
         if (dev->state == I2C_SLAVE_STATE_TX)
         {
-            /* Master sends NACK to indicate end of READ */
-            prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_READ_DONE, 0u, 0u);
+            /* Master sends NACK to indicate end of read transaction. */
+            prv_emit_event(dev, I2C_SLAVE_EVT_READ_DONE, 0u, 0u);
             dev->state = I2C_SLAVE_STATE_IDLE;
         }
         else
@@ -258,21 +268,21 @@ void i2c_slave_er_irq_handler(i2c_slave_t *dev)
         }
     }
 
-    /* BERR: Bus error */
+    /* BERR: bus error. */
     if ((i2c->SR1 & I2C_SR1_BERR) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_BERR;
         error |= I2C_SR1_BERR;
     }
 
-    /* ARLO: Arbitration lost */
+    /* ARLO: arbitration lost. */
     if ((i2c->SR1 & I2C_SR1_ARLO) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_ARLO;
         error |= I2C_SR1_ARLO;
     }
 
-    /* OVR: Overrun/Underrun */
+    /* OVR: overrun or underrun. */
     if ((i2c->SR1 & I2C_SR1_OVR) != 0u)
     {
         i2c->SR1 &= (uint16_t)~I2C_SR1_OVR;
@@ -282,6 +292,43 @@ void i2c_slave_er_irq_handler(i2c_slave_t *dev)
     if (error != 0u)
     {
         dev->state = I2C_SLAVE_STATE_IDLE;
-        prv_i2c_slave_emit_event(dev, I2C_SLAVE_EVT_ERROR, 0u, error);
+        prv_emit_event(dev, I2C_SLAVE_EVT_ERROR, 0u, error);
     }
+}
+
+/* Private functions -------------------------------------------------------*/
+
+/**
+ * @brief Emit an I2C slave event to the upper layer.
+ */
+static void prv_emit_event(i2c_slave_t *dev,
+                           i2c_slave_event_t type,
+                           uint8_t data,
+                           uint32_t error)
+{
+    if ((dev == NULL) || (dev->event_cb == NULL))
+    {
+        return;
+    }
+
+    i2c_slave_evt_t evt;
+
+    evt.type = type;
+    evt.data = data;
+    evt.error = error;
+
+    dev->event_cb(dev->event_ctx, &evt);
+}
+
+/**
+ * @brief Get a byte to transmit from the upper layer.
+ */
+static uint8_t prv_get_tx_byte(i2c_slave_t *dev)
+{
+    if ((dev == NULL) || (dev->tx_cb == NULL))
+    {
+        return 0xFFu;
+    }
+
+    return dev->tx_cb(dev->tx_ctx);
 }

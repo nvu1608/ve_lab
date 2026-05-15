@@ -1,54 +1,110 @@
-#include "stm32f10x.h"
+/**
+ * @file    main.c
+ * @brief   Application entry point for simulator firmware.
+ * @details Initializes hardware, configures simulation projects based on
+ *          app_cfg.h, and starts the FreeRTOS scheduler.
+ */
+
 #include "FreeRTOS.h"
+#include "app_cfg.h"
+#include "stm32f10x.h"
 #include "task.h"
 
-#include "app_cfg.h"
-#include "driver_nvic.h"
-
 #if (ENABLE_DS1307 == 1)
-#include "ds1307_project.h"
+#include "sim_ds1307.h"
 #endif
 
 #if (ENABLE_DHT11 == 1)
-#include "dht11_project.h"
+#include "sim_dht11.h"
 #endif
 
-/* ============================================================
- * Main Entry Point
- * ============================================================ */
+#if (ENABLE_MQ2 == 1)
+#include "sim_mq2.h"
+#endif
+
+#if (ENABLE_HC595 == 1)
+#include "sim_74hc595.h"
+#endif
+
+#if (ENABLE_DHT22 == 1)
+#include "sim_dht22.h"
+#endif
+
+/* Private function prototypes ---------------------------------------------*/
+
+/**
+ * @brief Initialize low-level MCU hardware (clocks, NVIC grouping).
+ */
+static void prv_setup_hardware(void);
+
+/**
+ * @brief Initialize all enabled simulation modules.
+ */
+static void prv_setup_labs(void);
+
+/* Public functions --------------------------------------------------------*/
+
 int main(void)
 {
-    /* 1. System low-level initialization */
-    SystemInit();
-    SystemCoreClockUpdate();
-    nvic_set_priority_group(NVIC_PriorityGroup_4);
+    /* 1. Low-level hardware setup */
+    prv_setup_hardware();
 
-    /* 2. Initialize Projects/Sensors */
-#if (ENABLE_DS1307 == 1)
-    ds1307_project_init();
-#endif
+    /* 2. Simulation modules setup */
+    prv_setup_labs();
 
-#if (ENABLE_DHT11 == 1)
-    dht11_project_init();
-#endif
-
-    /* 3. Start FreeRTOS Scheduler */
+    /* 3. Start FreeRTOS scheduler */
     vTaskStartScheduler();
 
     /* Should never reach here */
-    while (1);
+    for (;;)
+    {
+        __NOP();
+    }
 }
 
-/* ============================================================
- * FreeRTOS Hooks
- * ============================================================ */
-void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+/* Private functions -------------------------------------------------------*/
+
+static void prv_setup_hardware(void)
 {
-    (void)xTask; (void)pcTaskName;
-    while (1);
+    SystemInit();
+    SystemCoreClockUpdate();
+
+    /* Set NVIC priority grouping for FreeRTOS */
+    NVIC_SetPriorityGrouping(NVIC_PriorityGroup_4);
 }
 
-void vApplicationMallocFailedHook(void)
+static void prv_setup_labs(void)
 {
-    while (1);
+#if (ENABLE_DS1307 == 1)
+    sim_ds1307_init();
+#endif
+
+#if (ENABLE_DHT11 == 1)
+    sim_dht11_init();
+#endif
+
+#if (ENABLE_MQ2 == 1)
+    sim_mq2_init();
+#endif
+
+#if (ENABLE_HC595 == 1)
+    sim_74hc595_init();
+#endif
+
+#if (ENABLE_DHT22 == 1)
+    sim_dht22_init();
+#endif
+}
+
+
+void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
+{
+    ( void ) xTask;
+    ( void ) pcTaskName;
+    for( ;; );
+}
+
+void vApplicationMallocFailedHook( void )
+{
+    for( ;; );
 }
