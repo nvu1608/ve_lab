@@ -12,8 +12,18 @@ obj/
 *.hex
 *.bin
 
-# Toolchain (ARM GCC)
-arm_gcc/
+# Toolchain
+toolchain/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/
+
+
+# Python / Logic scripts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+logic/result.csv
 
 # IDE files
 .vscode/
