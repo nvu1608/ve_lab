@@ -62,6 +62,7 @@ void mq2_sim_start(mq2_t *dev,
                    uint32_t stack_size);
 
 #ifdef __cplusplus
+
 }
 #endif
 

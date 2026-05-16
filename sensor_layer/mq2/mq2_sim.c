@@ -259,4 +259,7 @@ static int32_t prv_generate_noise_mv(void)
     return (rand() %
            (MQ2_NOISE_MV_MAX - MQ2_NOISE_MV_MIN + 1))
            + MQ2_NOISE_MV_MIN;
+
+
+           
 }
