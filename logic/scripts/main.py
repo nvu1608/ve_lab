@@ -35,7 +35,7 @@ import gpiod
 BASE_DIR        = "/home/pi/ve_lab"
 TEMPLATE_DIR    = f"{BASE_DIR}/stm32_temp_stu"
 ASSIGNMENTS_DIR = f"{BASE_DIR}/assignment"
-LOGIC_DIR       = f"{BASE_DIR}/logic"
+LOGIC_DIR       = f"{BASE_DIR}/logic/scripts"
 
 # ST-Link Serials cho tung thiet bi
 STLINK_STUDENT  = "37FF71064E573436DB011543"
